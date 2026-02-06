@@ -19,7 +19,7 @@ tr:nth-child(even){background:#f2f2f2}
 <h3>Sales Report</h3>
 <table id="t"></table>
 <script>
-const API="PASTE_WEB_APP_URL";
+const API="https://script.google.com/macros/s/AKfycbxrWk3gDJMh-Azjz76z45U8-8PykrEujzWa1S2e_7_-k8sgpu1PiY_i26kWxVv2JQQA5A/exec";
 fetch(API+"?action=salesReport").then(r=>r.json()).then(d=>{
 t.innerHTML="<tr><th>Date</th><th>Bill</th><th>Item</th><th>Qty</th><th>Total</th><th>Profit</th></tr>";
 d.forEach(r=>{
