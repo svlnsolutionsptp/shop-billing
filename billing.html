@@ -1,68 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SVLN SOLUTIONS - BILL</title>
+<title>Billing</title>
 
 <style>
 body{font-family:Arial;background:#eee;}
 .bill{width:210mm;margin:auto;background:#fff;padding:20px;}
-
-h1{text-align:center;color:#0a4da3;margin:5px;}
-.shop{text-align:center;font-size:14px;}
-
 table{width:100%;border-collapse:collapse;margin-top:10px;}
 th,td{border:1px solid #000;padding:6px;text-align:center;}
 th{background:#0a4da3;color:#fff;}
-
-input,select{width:100%;padding:5px;font-size:14px;}
-button{padding:8px 14px;margin:5px;}
-
-.print-text{display:none;}
+input,select{width:100%;padding:5px;}
 .no-print{}
-
-/* ===== PRINT FIX (IMPORTANT) ===== */
+.print-text{display:none;}
 @media print{
-  .no-print{display:none !important;}
-  input,select,button{display:none !important;}
-  .print-text{display:inline !important;}
-  body{background:#fff;}
+ input,select,button,.no-print{display:none!important;}
+ .print-text{display:inline!important;}
 }
 </style>
 </head>
 
 <body>
-
 <div class="bill">
 
-<h1>SVLN SOLUTIONS</h1>
-<div class="shop">
-5-33, Gold Market Street, Pithapuram, Andhra Pradesh<br>
-PIN CODE: 533450 | 📞 9533330347, 9494488885
-</div>
-
-<hr>
+<h2 style="text-align:center">SVLN SOLUTIONS</h2>
 
 <table>
 <tr>
-<td>
-Bill No:
-<b id="billno" class="print-text"></b>
-</td>
-
-<td>
-Date:
-<b id="bdate"></b>
-</td>
-
+<td>Bill No: <b id="billno" class="print-text"></b></td>
+<td>Date: <b id="bdate"></b></td>
 <td>
 Customer:
-<span class="print-text" id="pcname"></span>
+<span id="pcname" class="print-text"></span>
 <input id="cname" class="no-print">
 </td>
-
 <td>
 Mobile:
-<span class="print-text" id="pmobile"></span>
+<span id="pmobile" class="print-text"></span>
 <input id="mobile" class="no-print">
 </td>
 </tr>
@@ -70,16 +43,11 @@ Mobile:
 
 <table>
 <tr>
-<th>Item</th>
-<th>Qty</th>
-<th>Price</th>
-<th>Amount</th>
-<th class="no-print"></th>
+<th>Item</th><th>Qty</th><th>Price</th><th>Amount</th><th class="no-print"></th>
 </tr>
-
 <tr class="no-print">
 <td><select id="item"></select></td>
-<td><input id="qty" type="number" value="1"></td>
+<td><input id="qty" value="1"></td>
 <td><input id="price"></td>
 <td id="amt">0</td>
 <td><button onclick="addItem()">Add</button></td>
@@ -87,105 +55,59 @@ Mobile:
 </table>
 
 <table id="billTable">
-<tr>
-<th>S.No</th><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th>
-</tr>
+<tr><th>SNo</th><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th></tr>
 </table>
-
-<table style="width:40%;float:right;">
-<tr><td>Total</td><td id="total">0</td></tr>
-<tr><td>GST</td><td id="gst">0</td></tr>
-<tr><td>Grand</td><td id="grand">0</td></tr>
-</table>
-
-<p><b>Amount in Words:</b> <span id="words"></span></p>
-
-<br style="clear:both">
 
 <button class="no-print" onclick="saveBill()">Generate Bill</button>
 <button class="no-print" onclick="window.print()">Print</button>
-<button class="no-print" onclick="sendWhatsApp()">Send WhatsApp</button>
-
-<div style="text-align:center;font-weight:bold;margin-top:20px;">
-🙏 Thank You – Visit Again 🙏
-</div>
 
 </div>
 
 <script>
-/* ===== CONFIG ===== */
-const API="https://script.google.com/macros/s/AKfycbzPfrF8QAfR6CSGsuLnwCIASOTKobXiw9PqPc3a5JqwcvOMI4pcfChUfSrAHQkLZ0u_8g/exec";
-
-/* ===== INIT ===== */
+const API="https://script.google.com/macros/s/AKfycbymUAdMOAvEnqQGCoX7EAsDwc-MUO0nWa8vysZCuWMAJTYRcUxCFYjNMJqxLPRTXQtngg/exec";
 bdate.innerText=new Date().toLocaleDateString();
-let billItems=[], total=0, sno=1;
+let billItems=[],total=0,sno=1;
 
-/* ===== LOAD PRODUCTS ===== */
 fetch(API+"?action=products")
 .then(r=>r.json())
 .then(d=>{
  d.forEach(p=>{
   let o=document.createElement("option");
-  o.value=p[0];
-  o.text=p[1];
-  o.dataset.price=p[3];
+  o.value=p[0]; o.text=p[1]; o.dataset.price=p[3];
   item.appendChild(o);
  });
  price.value=item.options[0].dataset.price;
- calcAmt();
+ calc();
 });
 
-/* ===== CALC ===== */
-function calcAmt(){
- amt.innerText=(qty.value*price.value).toFixed(2);
-}
-qty.oninput=calcAmt;
-price.oninput=calcAmt;
-item.onchange=()=>{price.value=item.options[item.selectedIndex].dataset.price;calcAmt();}
+function calc(){ amt.innerText=(qty.value*price.value).toFixed(2); }
+qty.oninput=calc; price.oninput=calc;
+item.onchange=()=>{price.value=item.options[item.selectedIndex].dataset.price;calc();}
 
 function addItem(){
  let q=Number(qty.value), p=Number(price.value);
- if(q<=0||p<=0){alert("Invalid");return;}
-
  let a=q*p;
  billItems.push({code:item.value,qty:q});
- total+=a;
-
  let r=billTable.insertRow();
  r.insertCell(0).innerText=sno++;
  r.insertCell(1).innerText=item.options[item.selectedIndex].text;
  r.insertCell(2).innerText=q;
  r.insertCell(3).innerText=p;
  r.insertCell(4).innerText=a;
-
- calcTotal();
 }
 
-function calcTotal(){
- let gstAmt=total*0.18;
- totalEl.innerText=total.toFixed(2);
- gst.innerText=gstAmt.toFixed(2);
- grand.innerText=(total+gstAmt).toFixed(2);
- words.innerText=toWords(Math.round(total+gstAmt));
-}
-
-function toWords(n){
- const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
- const b=["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
- if(n<20)return a[n]+" Rupees Only";
- if(n<100)return b[Math.floor(n/10)]+" "+a[n%10]+" Rupees Only";
- if(n<1000)return a[Math.floor(n/100)]+" Hundred "+toWords(n%100);
- return toWords(Math.floor(n/1000))+" Thousand "+toWords(n%1000);
-}
-
-/* ===== SAVE BILL (CRITICAL FIX) ===== */
 function saveBill(){
+ if(!cname.value||mobile.value.length<10){alert("Customer details");return;}
+ pcname.innerText=cname.value; pmobile.innerText=mobile.value;
 
- if(cname.value=="" || mobile.value.length<10){
-  alert("Customer details required"); return;
- }
- if(billItems.length===0){
-  alert("Add items first"); return;
- }
+ fetch(API+"?action=sell"+
+ "&items="+encodeURIComponent(JSON.stringify(billItems))+
+ "&cname="+encodeURIComponent(cname.value)+
+ "&mobile="+encodeURIComponent(mobile.value))
+ .then(r=>r.text())
+ .then(bn=>{ billno.innerText=bn; alert("Saved "+bn); });
+}
+</script>
 
- pcname.inne
+</body>
+</html>
