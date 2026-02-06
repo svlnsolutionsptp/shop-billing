@@ -2,10 +2,11 @@
 <html>
 <head>
 <title>SVLN SOLUTIONS - GST BILL</title>
+
 <style>
 body{font-family:Arial;background:#eee;}
 .bill{width:210mm;margin:auto;background:#fff;padding:20px;}
-h1{text-align:center;color:#0a4da3;}
+h1{text-align:center;color:#0a4da3;margin:5px;}
 .shop{text-align:center;font-size:14px;}
 table{width:100%;border-collapse:collapse;margin-top:10px;}
 th{background:#0a4da3;color:#fff;padding:6px;}
@@ -13,13 +14,13 @@ td{border:1px solid #000;padding:6px;text-align:center;}
 input,select{width:100%;padding:5px;}
 .total{width:40%;float:right;}
 .footer{text-align:center;margin-top:30px;font-weight:bold;}
+button{padding:8px 15px;margin:5px;}
 @media print{button{display:none;}body{background:#fff;}}
- <button onclick="sendWhatsApp()">Send WhatsApp</button>
-
 </style>
 </head>
 
 <body>
+
 <div class="bill">
 
 <h1>SVLN SOLUTIONS</h1>
@@ -33,14 +34,18 @@ PIN: 533450 | 📞 9533330347, 9494488885
 <table>
 <tr>
 <td>Date: <b id="bdate"></b></td>
-<td>Customer: <input id="cname"></td>
+<td>Customer Name: <input id="cname"></td>
 <td>Mobile: <input id="mobile"></td>
 </tr>
 </table>
 
 <table>
 <tr>
-<th>Item</th><th>Qty</th><th>Price</th><th>Amount</th><th></th>
+<th>Item</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Amount</th>
+<th></th>
 </tr>
 <tr>
 <td><select id="item"></select></td>
@@ -53,7 +58,11 @@ PIN: 533450 | 📞 9533330347, 9494488885
 
 <table id="billTable">
 <tr>
-<th>S.No</th><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th>
+<th>S.No</th>
+<th>Item</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Amount</th>
 </tr>
 </table>
 
@@ -63,7 +72,7 @@ PIN: 533450 | 📞 9533330347, 9494488885
 <td>GST % <input id="gstp" value="18" oninput="calc()"></td>
 <td id="gst">0</td>
 </tr>
-<tr><td>Grand</td><td id="grand">0</td></tr>
+<tr><td>Grand Total</td><td id="grand">0</td></tr>
 </table>
 
 <p><b>Amount in Words:</b> <span id="words"></span></p>
@@ -75,15 +84,18 @@ PIN: 533450 | 📞 9533330347, 9494488885
 <button onclick="sendWhatsApp()">Send WhatsApp</button>
 
 <div class="footer">🙏 Thank You – Visit Again 🙏</div>
+
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbx17UA-wfZTPnai9N5EjiAy2M_0wWkcovrC1QyDZWEAw3l3Bk3IHbXWxpzMW7WrAbwGBQ/exec";
+/* ================= CONFIG ================= */
+const API = "https://script.google.com/macros/s/AKfycbx17UA-wfZTPnai9N5EjiAy2M_0wWkcovrC1QyDZWEAw3l3Bk3IHbXWxpzMW7WrAbwGBQ/exec";
 
-bdate.innerText=new Date().toLocaleDateString();
+/* ================= INIT ================= */
+bdate.innerText = new Date().toLocaleDateString();
+let billItems=[], total=0, sno=1;
 
-let billItems=[],total=0,sno=1;
-
+/* ================= LOAD PRODUCTS ================= */
 fetch(API+"?action=products")
 .then(r=>r.json())
 .then(d=>{
@@ -94,19 +106,27 @@ fetch(API+"?action=products")
   o.dataset.price=p[3];
   item.appendChild(o);
  });
- price.value=item.options[0].dataset.price;
- calcAmt();
+ if(item.options.length>0){
+   price.value=item.options[0].dataset.price;
+   calcAmt();
+ }
 });
 
+/* ================= AUTO CALC ================= */
 item.onchange=()=>{price.value=item.options[item.selectedIndex].dataset.price;calcAmt();}
 qty.oninput=calcAmt;
 price.oninput=calcAmt;
 
-function calcAmt(){amt.innerText=(qty.value*price.value).toFixed(2);}
+function calcAmt(){
+ amt.innerText=(qty.value*price.value).toFixed(2);
+}
 
+/* ================= ADD ITEM ================= */
 function addItem(){
- let q=Number(qty.value),p=Number(price.value);
+ let q=Number(qty.value), p=Number(price.value);
+ if(q<=0 || p<=0){alert("Enter valid qty and price");return;}
  let a=q*p;
+
  billItems.push({code:item.value,qty:q});
  total+=a;
 
@@ -114,12 +134,13 @@ function addItem(){
  r.insertCell(0).innerText=sno++;
  r.insertCell(1).innerText=item.options[item.selectedIndex].text;
  r.insertCell(2).innerText=q;
- r.insertCell(3).innerText=p;
- r.insertCell(4).innerText=a;
+ r.insertCell(3).innerText=p.toFixed(2);
+ r.insertCell(4).innerText=a.toFixed(2);
 
  calc();
 }
 
+/* ================= TOTAL ================= */
 function calc(){
  let g=total*gstp.value/100;
  totalEl.innerText=total.toFixed(2);
@@ -128,6 +149,7 @@ function calc(){
  words.innerText=numberToWords(Math.round(total+g));
 }
 
+/* ================= NUMBER TO WORDS ================= */
 function numberToWords(n){
  const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten",
  "Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
@@ -139,20 +161,53 @@ function numberToWords(n){
  return numberToWords(Math.floor(n/1000))+" Thousand "+numberToWords(n%1000);
 }
 
+/* ================= SAVE BILL ================= */
 function saveBill(){
- if(cname.value==""||mobile.value.length<10){alert("Customer details required");return;}
- if(billItems.length==0){alert("Add items");return;}
+ if(cname.value.trim()=="" || mobile.value.trim().length<10){
+   alert("Customer name and valid mobile required");
+   return;
+ }
+ if(billItems.length==0){
+   alert("Add at least one item");
+   return;
+ }
+
  fetch(API+"?action=sell&items="+encodeURIComponent(JSON.stringify(billItems))+
- "&cname="+encodeURIComponent(cname.value)+"&mobile="+encodeURIComponent(mobile.value))
- .then(r=>r.text()).then(t=>alert("Bill Generated "+t));
+ "&cname="+encodeURIComponent(cname.value)+
+ "&mobile="+encodeURIComponent(mobile.value))
+ .then(r=>r.text())
+ .then(t=>alert("Bill Generated Successfully\n"+t));
 }
-<button onclick="sendWhatsApp()">Send WhatsApp</button>
+
+/* ================= WHATSAPP ================= */
+function sendWhatsApp(){
+ if(mobile.value.trim().length<10){
+   alert("Enter valid mobile number");
+   return;
+ }
+ let msg=
+`SVLN SOLUTIONS
+5-33, Gold Market Street, Pithapuram
+📞 9533330347, 9494488885
+
+Bill Date: ${bdate.innerText}
+Customer: ${cname.value}
+
+Total Amount: ₹${grand.innerText}
+Amount in Words:
+${words.innerText}
+
+Thank you for shopping with us 🙏
+Visit Again`;
+
+ window.open(
+   "https://wa.me/91"+mobile.value+"?text="+encodeURIComponent(msg),
+   "_blank"
+ );
+}
 
 const totalEl=document.getElementById("total");
 </script>
+
 </body>
 </html>
-
-
-
-
