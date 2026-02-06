@@ -1,80 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SVLN SOLUTIONS - Purchase</title>
-
+<title>Purchase</title>
 <style>
 body{font-family:Arial;background:#f2f2f2;}
-.box{
-  width:450px;margin:60px auto;background:#fff;
-  padding:20px;border-radius:8px;
-}
-h2{text-align:center;color:#0a4da3;}
-input,button{
-  width:100%;padding:10px;margin:8px 0;font-size:15px;
-}
-button{background:#0a4da3;color:#fff;border:none;cursor:pointer;}
+.box{width:400px;margin:60px auto;background:#fff;padding:20px;border-radius:10px;}
+input,button{width:100%;padding:10px;margin:8px 0;}
+button{background:#0a4da3;color:#fff;border:none;}
 </style>
 </head>
-
 <body>
 
 <div class="box">
-<h2>Purchase Entry</h2>
-
-<input id="supplier" placeholder="Supplier Name">
+<h2>Purchase</h2>
+<input id="supplier" placeholder="Supplier">
 <input id="code" placeholder="Item Code">
 <input id="name" placeholder="Item Name">
-<input id="qty" type="number" placeholder="Quantity">
-<input id="cost" type="number" placeholder="Cost Price">
-
-<button id="saveBtn">Save Purchase</button>
+<input id="qty" type="number" placeholder="Qty">
+<input id="cost" type="number" placeholder="Cost">
+<button onclick="save()">Save Purchase</button>
 </div>
 
 <script>
-/* ========= CONFIG ========= */
-const API = "https://script.google.com/macros/s/AKfycbx17UA-wfZTPnai9N5EjiAy2M_0wWkcovrC1QyDZWEAw3l3Bk3IHbXWxpzMW7WrAbwGBQ/exec";
-
-/* ========= TEST BUTTON ========= */
-document.getElementById("saveBtn").addEventListener("click", function () {
-  alert("Button Clicked");   // 👈 THIS MUST SHOW
-  savePurchase();
-});
-
-function savePurchase(){
-
-  const s  = document.getElementById("supplier").value.trim();
-  const c  = document.getElementById("code").value.trim();
-  const n  = document.getElementById("name").value.trim();
-  const q  = document.getElementById("qty").value.trim();
-  const cp = document.getElementById("cost").value.trim();
-
-  if(!s || !c || !n || !q || !cp){
-    alert("All fields are required");
-    return;
-  }
-
-  const url =
-    API +
-    "?action=purchase" +
-    "&supplier=" + encodeURIComponent(s) +
-    "&code=" + encodeURIComponent(c) +
-    "&name=" + encodeURIComponent(n) +
-    "&qty=" + encodeURIComponent(q) +
-    "&cost=" + encodeURIComponent(cp);
-
-  console.log("Calling URL:", url); // 👈 DEBUG
-
-  fetch(url)
-    .then(res => res.text())
-    .then(txt => {
-      alert("Server Response: " + txt);
-      location.reload();
-    })
-    .catch(err => {
-      alert("Fetch error");
-      console.error(err);
-    });
+const API="https://script.google.com/macros/s/AKfycbz05MprZLf00ecCq3ldncu0OcTCCzVtoKPHD0y0iDTB2g8s8wMqWhW5b4Q_m3Vtry4wTg/exec";
+function save(){
+ fetch(`${API}?action=purchase&supplier=${supplier.value}&code=${code.value}&name=${name.value}&qty=${qty.value}&cost=${cost.value}`)
+ .then(r=>r.text()).then(t=>alert(t));
 }
 </script>
 
