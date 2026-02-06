@@ -4,93 +4,25 @@
 <title>SVLN Solutions – Invoice</title>
 
 <style>
-body{
-  font-family: Arial, sans-serif;
-  background:#f2f2f2;
-}
-.invoice{
-  width:210mm;
-  margin:auto;
-  background:#fff;
-  padding:20px;
-  color:#000;
-}
-.header{
-  display:flex;
-  justify-content:space-between;
-  border-bottom:2px solid #1f4fd8;
-  padding-bottom:10px;
-}
-.shop{
-  font-size:14px;
-}
-.shop h2{
-  margin:0;
-  color:#1f4fd8;
-}
-.invoice-info{
-  text-align:right;
-  font-size:14px;
-}
-.invoice-info b{
-  color:#1f4fd8;
-}
-.billto{
-  margin-top:15px;
-  font-size:14px;
-}
-.table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:15px;
-}
-.table th{
-  background:#1f4fd8;
-  color:#fff;
-  padding:8px;
-  border:1px solid #1f4fd8;
-  font-size:14px;
-}
-.table td{
-  border:1px solid #ccc;
-  padding:8px;
-  font-size:14px;
-  text-align:center;
-}
-.right{
-  width:40%;
-  float:right;
-  margin-top:15px;
-}
-.right td{
-  border:1px solid #ccc;
-  padding:8px;
-}
-.words{
-  margin-top:10px;
-  font-size:14px;
-}
-.sign{
-  margin-top:40px;
-  text-align:right;
-  font-size:14px;
-}
-.terms{
-  margin-top:30px;
-  font-size:13px;
-}
+body{font-family:Arial;background:#f2f2f2;}
+.invoice{width:210mm;margin:auto;background:#fff;padding:20px;}
+.header{display:flex;justify-content:space-between;border-bottom:2px solid #1f4fd8;padding-bottom:10px;}
+.shop h2{margin:0;color:#1f4fd8;}
+.shop{font-size:14px;}
+.invoice-info{text-align:right;font-size:14px;}
+.invoice-info b{color:#1f4fd8;}
+.billto{margin-top:15px;font-size:14px;}
+.table{width:100%;border-collapse:collapse;margin-top:15px;}
+.table th{background:#1f4fd8;color:#fff;padding:8px;}
+.table td{border:1px solid #ccc;padding:8px;text-align:center;}
+.right{width:40%;float:right;margin-top:15px;}
+.right td{border:1px solid #ccc;padding:8px;}
+.words{margin-top:10px;font-size:14px;}
+.sign{text-align:right;margin-top:40px;font-size:14px;}
 .no-print{}
 .print-text{display:none;}
-
-input,select{
-  width:100%;
-  padding:5px;
-}
-
-button{
-  padding:8px 14px;
-  margin-top:10px;
-}
+input,select{width:100%;padding:5px;}
+button{padding:8px 14px;margin-top:10px;}
 
 @media print{
   body{background:#fff;}
@@ -104,71 +36,58 @@ button{
 
 <div class="invoice">
 
-<!-- HEADER -->
 <div class="header">
   <div class="shop">
     <h2>SVLN Solutions</h2>
-    Near Jayanthi Eye Hospital, Gold Market Street<br>
-    Pithapuram, Andhra Pradesh – 533450<br>
-    Mobile: 9533330347, 9494488885<br>
-    Email: svlnsolutionsptp@gmail.com
+    Gold Market Street, Pithapuram – 533450<br>
+    📞 9533330347, 9494488885
   </div>
-
   <div class="invoice-info">
     <b>INVOICE</b><br><br>
     Invoice No: <b id="billno" class="print-text"></b><br>
-    Invoice Date: <span id="bdate"></span><br>
-    Due Date: <span id="bdate2"></span>
+    Date: <span id="bdate"></span>
   </div>
 </div>
 
-<!-- BILL TO -->
 <div class="billto">
-  <b>Bill To:</b><br>
-  <span class="print-text" id="pcname"></span>
-  <input id="cname" class="no-print"><br>
-  Ph: <span class="print-text" id="pmobile"></span>
-  <input id="mobile" class="no-print">
+<b>Bill To:</b><br>
+<span id="pcname" class="print-text"></span>
+<input id="cname" class="no-print" placeholder="Customer Name"><br>
+Ph:
+<span id="pmobile" class="print-text"></span>
+<input id="mobile" class="no-print" placeholder="Mobile" onblur="fetchCustomer()">
 </div>
 
-<!-- ITEM ENTRY (SCREEN ONLY) -->
 <table class="table no-print">
+<tr><th>Item</th><th>Qty</th><th>Rate</th><th>Amount</th><th></th></tr>
 <tr>
-  <th>Item</th><th>Qty</th><th>Rate</th><th>Amount</th><th></th>
-</tr>
-<tr>
-  <td><select id="item"></select></td>
-  <td><input id="qty" type="number" value="1"></td>
-  <td><input id="price"></td>
-  <td id="amt">0</td>
-  <td><button onclick="addItem()">Add</button></td>
+<td><select id="item"></select></td>
+<td><input id="qty" type="number" value="1"></td>
+<td><input id="price"></td>
+<td id="amt">0</td>
+<td><button onclick="addItem()">Add</button></td>
 </tr>
 </table>
 
-<!-- ITEMS TABLE -->
 <table class="table" id="billTable">
-<tr>
-  <th>#</th>
-  <th>Item</th>
-  <th>HSN/SAC</th>
-  <th>Rate / Item</th>
-  <th>Qty</th>
-  <th>Amount</th>
-</tr>
+<tr><th>#</th><th>Item</th><th>Rate</th><th>Qty</th><th>Amount</th></tr>
 </table>
 
-<!-- TOTAL -->
 <table class="right">
 <tr><td>Total</td><td id="total">0</td></tr>
-<tr><td>GST (18%)</td><td id="gst">0</td></tr>
+<tr>
+<td>GST % <span class="print-text" id="pgst"></span>
+<input id="gstp" class="no-print" value="18" oninput="calcTotal()">
+</td>
+<td id="gst">0</td>
+</tr>
 <tr><td><b>Amount Payable</b></td><td><b id="grand">0</b></td></tr>
 </table>
 
 <div style="clear:both"></div>
 
 <div class="words">
-<b>Total amount (in words):</b>
-<span id="words"></span>
+<b>Amount in Words:</b> <span id="words"></span>
 </div>
 
 <div class="sign">
@@ -176,76 +95,68 @@ For <b>SVLN Solutions</b><br><br>
 Authorized Signatory
 </div>
 
-<div class="terms">
-<b>Terms & Conditions:</b><br>
-1. All disputes are subject to local jurisdiction only.<br>
-2. Any complaint regarding this invoice must be made within 7 days.<br>
-3. Goods once sold will not be taken back.<br>
-4. No warranty for physical damage.<br>
-5. Interest @18% applicable after due date.
-</div>
-
-<div style="text-align:center;margin-top:20px;font-weight:bold;">
+<div style="text-align:center;margin-top:15px;font-weight:bold;">
 Thank you for doing business with us!
 </div>
 
 <button class="no-print" onclick="saveBill()">Generate Invoice</button>
 <button class="no-print" onclick="window.print()">Print</button>
+<button class="no-print" onclick="sendWhatsApp()">Send WhatsApp</button>
 
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbymUAdMOAvEnqQGCoX7EAsDwc-MUO0nWa8vysZCuWMAJTYRcUxCFYjNMJqxLPRTXQtngg/exec";
+const API="https://script.google.com/macros/s/AKfycbwpbLtM6zx961KO8OD2N6RCe_kFxKH6vcL3bVelxv70QnzBz1YNzdCcgGAyMRpV8wGHWg/exec";
 
 bdate.innerText=new Date().toLocaleDateString();
-bdate2.innerText=new Date().toLocaleDateString();
-
 let billItems=[],total=0,sno=1;
 
+/* LOAD PRODUCTS */
 fetch(API+"?action=products")
 .then(r=>r.json())
 .then(d=>{
  d.forEach(p=>{
   let o=document.createElement("option");
-  o.value=p[0];
-  o.text=p[1];
-  o.dataset.price=p[3];
+  o.value=p[0]; o.text=p[1]; o.dataset.price=p[3];
   item.appendChild(o);
  });
  price.value=item.options[0].dataset.price;
  calcAmt();
 });
 
-function calcAmt(){
- amt.innerText=(qty.value*price.value).toFixed(2);
+/* AUTO FETCH CUSTOMER */
+function fetchCustomer(){
+ if(mobile.value.length<10) return;
+ fetch(API+"?action=getCustomer&mobile="+mobile.value)
+ .then(r=>r.text())
+ .then(name=>{ if(name) cname.value=name; });
 }
-qty.oninput=calcAmt;
-price.oninput=calcAmt;
+
+/* CALC */
+function calcAmt(){ amt.innerText=(qty.value*price.value).toFixed(2); }
+qty.oninput=calcAmt; price.oninput=calcAmt;
 item.onchange=()=>{price.value=item.options[item.selectedIndex].dataset.price;calcAmt();}
 
 function addItem(){
  let q=Number(qty.value),p=Number(price.value);
  let a=q*p;
-
  billItems.push({code:item.value,qty:q});
  total+=a;
-
  let r=billTable.insertRow();
  r.insertCell(0).innerText=sno++;
  r.insertCell(1).innerText=item.options[item.selectedIndex].text;
- r.insertCell(2).innerText="-";
- r.insertCell(3).innerText=p.toFixed(2);
- r.insertCell(4).innerText=q+" UNT";
- r.insertCell(5).innerText=a.toFixed(2);
-
+ r.insertCell(2).innerText=p;
+ r.insertCell(3).innerText=q;
+ r.insertCell(4).innerText=a;
  calcTotal();
 }
 
 function calcTotal(){
- let g=total*0.18;
+ let g=total*gstp.value/100;
  totalEl.innerText=total.toFixed(2);
  gst.innerText=g.toFixed(2);
  grand.innerText=(total+g).toFixed(2);
+ pgst.innerText=gstp.value+"%";
  words.innerText=numWords(Math.round(total+g));
 }
 
@@ -260,25 +171,3 @@ function numWords(n){
 }
 
 function saveBill(){
- if(!cname.value||mobile.value.length<10){
-  alert("Customer details required");return;
- }
- pcname.innerText=cname.value;
- pmobile.innerText=mobile.value;
-
- fetch(API+"?action=sell"+
- "&items="+encodeURIComponent(JSON.stringify(billItems))+
- "&cname="+encodeURIComponent(cname.value)+
- "&mobile="+encodeURIComponent(mobile.value))
- .then(r=>r.text())
- .then(bn=>{
-  billno.innerText=bn;
-  alert("Invoice Generated : "+bn);
- });
-}
-
-const totalEl=document.getElementById("total");
-</script>
-
-</body>
-</html>
