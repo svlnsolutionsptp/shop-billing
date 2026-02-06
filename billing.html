@@ -36,30 +36,36 @@ button{padding:8px 14px;margin-top:10px;}
 
 <div class="invoice">
 
+<!-- HEADER -->
 <div class="header">
   <div class="shop">
-    <h2>SVLN Solutions</h2>
-    Gold Market Street, Pithapuram – 533450<br>
+    <h2>SVLN SOLUTIONS</h2>
+    5-33, Gold Market Street,<br>
+    Pithapuram, Andhra Pradesh – 533450<br>
     📞 9533330347, 9494488885
   </div>
   <div class="invoice-info">
-    <b>INVOICE</b><br><br>
+    <b>TAX INVOICE</b><br><br>
     Invoice No: <b id="billno" class="print-text"></b><br>
     Date: <span id="bdate"></span>
   </div>
 </div>
 
+<!-- CUSTOMER -->
 <div class="billto">
 <b>Bill To:</b><br>
 <span id="pcname" class="print-text"></span>
 <input id="cname" class="no-print" placeholder="Customer Name"><br>
-Ph:
+Mobile:
 <span id="pmobile" class="print-text"></span>
-<input id="mobile" class="no-print" placeholder="Mobile" onblur="fetchCustomer()">
+<input id="mobile" class="no-print" placeholder="Mobile Number" onblur="fetchCustomer()">
 </div>
 
+<!-- ITEM ENTRY -->
 <table class="table no-print">
-<tr><th>Item</th><th>Qty</th><th>Rate</th><th>Amount</th><th></th></tr>
+<tr>
+<th>Item</th><th>Qty</th><th>Rate</th><th>Amount</th><th></th>
+</tr>
 <tr>
 <td><select id="item"></select></td>
 <td><input id="qty" type="number" value="1"></td>
@@ -69,19 +75,24 @@ Ph:
 </tr>
 </table>
 
+<!-- BILL ITEMS -->
 <table class="table" id="billTable">
-<tr><th>#</th><th>Item</th><th>Rate</th><th>Qty</th><th>Amount</th></tr>
+<tr>
+<th>#</th><th>Description</th><th>Rate</th><th>Qty</th><th>Amount</th>
+</tr>
 </table>
 
+<!-- TOTAL -->
 <table class="right">
 <tr><td>Total</td><td id="total">0</td></tr>
 <tr>
-<td>GST % <span class="print-text" id="pgst"></span>
+<td>
+GST % <span class="print-text" id="pgst"></span>
 <input id="gstp" class="no-print" value="18" oninput="calcTotal()">
 </td>
 <td id="gst">0</td>
 </tr>
-<tr><td><b>Amount Payable</b></td><td><b id="grand">0</b></td></tr>
+<tr><td><b>Grand Total</b></td><td><b id="grand">0</b></td></tr>
 </table>
 
 <div style="clear:both"></div>
@@ -91,12 +102,12 @@ Ph:
 </div>
 
 <div class="sign">
-For <b>SVLN Solutions</b><br><br>
+For <b>SVLN SOLUTIONS</b><br><br>
 Authorized Signatory
 </div>
 
 <div style="text-align:center;margin-top:15px;font-weight:bold;">
-Thank you for doing business with us!
+Thank you – Visit Again 🙏
 </div>
 
 <button class="no-print" onclick="saveBill()">Generate Invoice</button>
@@ -106,51 +117,66 @@ Thank you for doing business with us!
 </div>
 
 <script>
+/* ===== CONFIG ===== */
 const API="https://script.google.com/macros/s/AKfycbwpbLtM6zx961KO8OD2N6RCe_kFxKH6vcL3bVelxv70QnzBz1YNzdCcgGAyMRpV8wGHWg/exec";
 
+/* ===== INIT ===== */
 bdate.innerText=new Date().toLocaleDateString();
-let billItems=[],total=0,sno=1;
+let billItems=[], total=0, sno=1;
 
-/* LOAD PRODUCTS */
+/* ===== LOAD PRODUCTS ===== */
 fetch(API+"?action=products")
 .then(r=>r.json())
 .then(d=>{
  d.forEach(p=>{
   let o=document.createElement("option");
-  o.value=p[0]; o.text=p[1]; o.dataset.price=p[3];
+  o.value=p[0];
+  o.text=p[1];
+  o.dataset.price=p[3];
   item.appendChild(o);
  });
  price.value=item.options[0].dataset.price;
  calcAmt();
 });
 
-/* AUTO FETCH CUSTOMER */
+/* ===== AUTO FETCH CUSTOMER ===== */
 function fetchCustomer(){
  if(mobile.value.length<10) return;
  fetch(API+"?action=getCustomer&mobile="+mobile.value)
  .then(r=>r.text())
- .then(name=>{ if(name) cname.value=name; });
+ .then(name=>{
+   if(name) cname.value=name;
+ });
 }
 
-/* CALC */
-function calcAmt(){ amt.innerText=(qty.value*price.value).toFixed(2); }
-qty.oninput=calcAmt; price.oninput=calcAmt;
+/* ===== CALCULATIONS ===== */
+function calcAmt(){
+ amt.innerText=(qty.value*price.value).toFixed(2);
+}
+qty.oninput=calcAmt;
+price.oninput=calcAmt;
 item.onchange=()=>{price.value=item.options[item.selectedIndex].dataset.price;calcAmt();}
 
+/* ===== ADD ITEM ===== */
 function addItem(){
- let q=Number(qty.value),p=Number(price.value);
+ let q=Number(qty.value), p=Number(price.value);
+ if(q<=0||p<=0){alert("Invalid qty/price");return;}
+
  let a=q*p;
  billItems.push({code:item.value,qty:q});
  total+=a;
+
  let r=billTable.insertRow();
  r.insertCell(0).innerText=sno++;
  r.insertCell(1).innerText=item.options[item.selectedIndex].text;
- r.insertCell(2).innerText=p;
+ r.insertCell(2).innerText=p.toFixed(2);
  r.insertCell(3).innerText=q;
- r.insertCell(4).innerText=a;
+ r.insertCell(4).innerText=a.toFixed(2);
+
  calcTotal();
 }
 
+/* ===== TOTAL ===== */
 function calcTotal(){
  let g=total*gstp.value/100;
  totalEl.innerText=total.toFixed(2);
@@ -160,6 +186,7 @@ function calcTotal(){
  words.innerText=numWords(Math.round(total+g));
 }
 
+/* ===== NUMBER TO WORDS ===== */
 function numWords(n){
  const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten",
  "Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
@@ -170,4 +197,63 @@ function numWords(n){
  return "INR "+numWords(Math.floor(n/1000))+" Thousand "+numWords(n%1000);
 }
 
+/* ===== SAVE BILL ===== */
 function saveBill(){
+ if(!cname.value||mobile.value.length<10){
+  alert("Customer details required"); return;
+ }
+ if(billItems.length===0){
+  alert("Please add items"); return;
+ }
+
+ pcname.innerText=cname.value;
+ pmobile.innerText=mobile.value;
+
+ fetch(
+  API+"?action=sell"+
+  "&items="+encodeURIComponent(JSON.stringify(billItems))+
+  "&cname="+encodeURIComponent(cname.value)+
+  "&mobile="+encodeURIComponent(mobile.value)
+ )
+ .then(r=>r.text())
+ .then(bn=>{
+   billno.innerText=bn;
+   alert("Invoice Generated : "+bn);
+ });
+}
+
+/* ===== WHATSAPP ===== */
+function sendWhatsApp(){
+ if(billno.innerText===""){
+  alert("Generate bill first"); return;
+ }
+
+ let msg=`SVLN SOLUTIONS
+Invoice No: ${billno.innerText}
+Customer: ${cname.value}
+Mobile: ${mobile.value}
+
+`;
+
+ billTable.querySelectorAll("tr").forEach((r,i)=>{
+  if(i>0){
+   msg+=`${r.cells[1].innerText} x${r.cells[3].innerText} = ₹${r.cells[4].innerText}\n`;
+  }
+ });
+
+ msg+=`
+GST: ${gst.innerText}
+Total: ₹${grand.innerText}
+
+${words.innerText}
+
+Thank you – Visit Again 🙏`;
+
+ window.open("https://wa.me/91"+mobile.value+"?text="+encodeURIComponent(msg));
+}
+
+const totalEl=document.getElementById("total");
+</script>
+
+</body>
+</html>
