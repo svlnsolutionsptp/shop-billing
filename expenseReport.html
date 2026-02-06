@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><title>Expense Report</title></head>
+<body>
+<h3>Expense Report</h3>
+<table id="t"></table>
+<script>
+const API="PASTE_WEB_APP_URL";
+fetch(API+"?action=expenseReport").then(r=>r.json()).then(d=>{
+t.innerHTML="<tr><th>Date</th><th>Name</th><th>Amount</th><th>Category</th></tr>";
+d.forEach(r=>{
+t.innerHTML+=`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`;
+});
+});
+</script>
+</body>
+</html>
