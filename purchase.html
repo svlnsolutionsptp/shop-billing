@@ -45,28 +45,46 @@ button{
 <script>
 const API="https://script.google.com/macros/s/AKfycbx17UA-wfZTPnai9N5EjiAy2M_0wWkcovrC1QyDZWEAw3l3Bk3IHbXWxpzMW7WrAbwGBQ/exec";
 
+<script>
+const API = "PASTE_YOUR_NEW_APPS_SCRIPT_URL";
+
 function savePurchase(){
 
-  if(!supplier.value || !code.value || !name.value || !qty.value || !cost.value){
+  let s = supplier.value.trim();
+  let c = code.value.trim();
+  let n = name.value.trim();
+  let q = qty.value.trim();
+  let cp = cost.value.trim();
+
+  if(s === "" || c === "" || n === "" || q === "" || cp === ""){
     alert("All fields required");
     return;
   }
 
-  fetch(`${API}?action=purchase
-  &supplier=${encodeURIComponent(supplier.value)}
-  &code=${encodeURIComponent(code.value)}
-  &name=${encodeURIComponent(name.value)}
-  &qty=${qty.value}
-  &cost=${cost.value}`)
-  .then(r=>r.text())
-  .then(res=>{
-    msg.innerText = res;
-    alert("Purchase Saved Successfully");
-    location.reload();
-  });
+  let url = API +
+    "?action=purchase" +
+    "&supplier=" + encodeURIComponent(s) +
+    "&code=" + encodeURIComponent(c) +
+    "&name=" + encodeURIComponent(n) +
+    "&qty=" + encodeURIComponent(q) +
+    "&cost=" + encodeURIComponent(cp);
+
+  fetch(url)
+    .then(r => r.text())
+    .then(res => {
+      alert("Purchase Saved Successfully");
+      location.reload();
+    })
+    .catch(err => {
+      alert("Error saving purchase");
+      console.error(err);
+    });
 }
+</script>
+
 </script>
 
 </body>
 </html>
+
 
