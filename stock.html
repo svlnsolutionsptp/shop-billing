@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Stock Report</title>
+<!-- paste common style here -->
+</head>
+<body>
+  <style>
+body{font-family:Arial;background:#f4f6fb}
+h3{text-align:center;color:#1f4fd8}
+table{
+  width:95%;margin:auto;border-collapse:collapse;
+  background:#fff;border-radius:8px;overflow:hidden
+}
+th{
+  background:#1f4fd8;color:#fff;padding:10px
+}
+td{padding:8px;border-bottom:1px solid #ddd;text-align:center}
+tr:nth-child(even){background:#f2f2f2}
+</style>
+
+<h3>Stock Report</h3>
+<table id="t"></table>
+<script>
+const API="https://script.google.com/macros/s/AKfycbxrWk3gDJMh-Azjz76z45U8-8PykrEujzWa1S2e_7_-k8sgpu1PiY_i26kWxVv2JQQA5A/exec";
+fetch(API+"?action=stockReport").then(r=>r.json()).then(d=>{
+t.innerHTML="<tr><th>Code</th><th>Name</th><th>Cost</th><th>Sell</th><th>Qty</th></tr>";
+d.forEach(r=>{
+t.innerHTML+=`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td></tr>`;
+});
+});
+</script>
+</body>
+</html>
