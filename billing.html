@@ -6,7 +6,7 @@
 
 <style>
 body{
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:Arial,Helvetica,sans-serif;
   background:#eee;
 }
 
@@ -17,18 +17,25 @@ body{
   box-shadow:0 5px 20px rgba(0,0,0,.25);
 }
 
+/* FORCE COLOUR PRINT */
+@media print{
+  body{background:#fff}
+  .invoice{box-shadow:none}
+  *{
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .no-print{display:none}
+}
+
 /* HEADER */
 .header{
   background:linear-gradient(135deg,#111 60%, #c60000 60%);
   color:#fff;
   padding:20px;
 }
-.header h2{
-  margin:0;
-}
-.header small{
-  font-size:13px;
-}
+.header h2{margin:0}
+.header small{font-size:13px}
 
 /* TITLE */
 .title{
@@ -36,29 +43,19 @@ body{
   justify-content:space-between;
   padding:20px;
 }
-.title h1{
-  margin:0;
-  letter-spacing:2px;
-}
-.meta{
-  text-align:right;
-  font-size:14px;
-}
+.title h1{margin:0;letter-spacing:2px}
+.meta{text-align:right;font-size:14px}
 
-/* CUSTOMER */
-.section{
-  padding:0 20px 10px 20px;
-}
-.section b{
-  display:block;
-  margin-bottom:4px;
+/* SECTIONS */
+.section{padding:0 20px 10px 20px}
+input,select{
+  padding:6px;margin:4px 0;
 }
 
 /* TABLE */
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:10px;
 }
 thead{
   background:#c60000;
@@ -69,19 +66,15 @@ th,td{
   border:1px solid #ccc;
   text-align:center;
 }
-td.text-left{
-  text-align:left;
-}
+.text-left{text-align:left}
 
-/* TOTAL */
+/* TOTAL BOX */
 .total-box{
-  width:300px;
+  width:350px;
   margin-left:auto;
   margin-top:10px;
 }
-.total-box td{
-  text-align:right;
-}
+.total-box td{text-align:right}
 
 /* FOOTER */
 .footer{
@@ -97,7 +90,6 @@ td.text-left{
   text-align:center;
   padding:15px;
 }
-
 button{
   padding:8px 16px;
   margin:5px;
@@ -106,20 +98,7 @@ button{
   border:none;
   cursor:pointer;
 }
-button:active{
-  transform:scale(.95);
-  opacity:.85;
-}
-
-input,select{
-  padding:6px;
-  margin:4px 0;
-}
-
-@media print{
-  body{background:#fff}
-  .actions{display:none}
-}
+button:active{transform:scale(.95);opacity:.85}
 </style>
 </head>
 
@@ -147,15 +126,15 @@ input,select{
 
   <!-- CUSTOMER -->
   <div class="section">
-    <b>Invoice To</b>
+    <b>Invoice To</b><br>
     Mobile:
     <input id="mobile" onblur="fetchCustomer()">
     Name:
     <input id="cname">
   </div>
 
-  <!-- ITEM ENTRY (NOT PRINTED) -->
-  <div class="section actions">
+  <!-- ITEM ENTRY (NO PRINT) -->
+  <div class="section actions no-print">
     <select id="item"></select>
     Qty <input id="qty" type="number" value="1" style="width:60px">
     Rate <input id="price" style="width:80px">
@@ -169,8 +148,10 @@ input,select{
       <tr>
         <th>#</th>
         <th class="text-left">Product</th>
-        <th>Price</th>
+        <th>Rate</th>
         <th>Qty</th>
+        <th>GST%</th>
+        <th>GST Amt</th>
         <th>Total</th>
       </tr>
     </thead>
@@ -180,8 +161,12 @@ input,select{
   <!-- TOTAL -->
   <table class="total-box">
     <tr>
-      <td><b>Grand Total</b></td>
+      <td>Grand Total</td>
       <td><b>₹ <span id="grand">0.00</span></b></td>
+    </tr>
+    <tr>
+      <td colspan="2"><small><i>Amount in words:</i><br>
+      <b id="words"></b></small></td>
     </tr>
   </table>
 
@@ -191,7 +176,7 @@ input,select{
   </div>
 
   <!-- ACTIONS -->
-  <div class="actions">
+  <div class="actions no-print">
     <button onclick="saveBill()">Generate Bill</button>
     <button onclick="window.print()">Print</button>
     <button onclick="sendWA()">WhatsApp</button>
@@ -200,12 +185,12 @@ input,select{
 </div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbyzDdO8_WNehVom7G8BIoGrbOw5HeeEFOi9Zp8BamFyi-U6qMvYDS8h4H1p6kg_UUYSHw/exec";
+const API="https://script.google.com/macros/s/AKfycbyzDdO8_WNehVom7G8BIoGrbOw5HeeEFOi9Zp8BamFyi-U6qMvYDS8h4H1p6kg_UUYSHw/exec";
 
-let items=[], sno=1, grand=0;
+let items=[], sno=1;
+let grandTotal=0;
 
-/* DATE */
-billdate.innerText = new Date().toLocaleDateString();
+billdate.innerText=new Date().toLocaleDateString();
 
 /* LOAD PRODUCTS */
 fetch(API+"?action=products")
@@ -222,7 +207,7 @@ fetch(API+"?action=products")
 });
 item.onchange=()=>price.value=item.options[item.selectedIndex].dataset.price;
 
-/* CUSTOMER AUTO FETCH */
+/* CUSTOMER */
 function fetchCustomer(){
   if(!mobile.value) return;
   fetch(API+"?action=getCustomer&mobile="+mobile.value)
@@ -232,9 +217,15 @@ function fetchCustomer(){
 
 /* ADD ITEM */
 function addItem(){
-  let q=+qty.value, p=+price.value, g=+gst.value;
-  let total=(q*p)+(q*p*g/100);
-  grand+=total;
+  let q=+qty.value;
+  let p=+price.value;
+  let g=+gst.value;
+
+  let base=q*p;
+  let gstAmt=base*g/100;
+  let total=base+gstAmt;
+
+  grandTotal+=total;
 
   items.push({code:item.value,qty:q,price:p,gst:g});
 
@@ -243,21 +234,18 @@ function addItem(){
   r.insertCell(1).innerText=item.options[item.selectedIndex].text;
   r.insertCell(2).innerText=p.toFixed(2);
   r.insertCell(3).innerText=q;
-  r.insertCell(4).innerText=total.toFixed(2);
+  r.insertCell(4).innerText=g;
+  r.insertCell(5).innerText=gstAmt.toFixed(2);
+  r.insertCell(6).innerText=total.toFixed(2);
 
-  grand.innerText=grand.toFixed(2);
+  document.getElementById("grand").innerText=grandTotal.toFixed(2);
+  document.getElementById("words").innerText=toWords(grandTotal);
 }
 
 /* SAVE BILL */
 function saveBill(){
-  if(!mobile.value || !cname.value){
-    alert("Customer name & mobile required");
-    return;
-  }
-  if(items.length===0){
-    alert("Add at least one item");
-    return;
-  }
+  if(!mobile.value||!cname.value){alert("Customer required");return;}
+  if(items.length===0){alert("Add item");return;}
 
   fetch(API+"?action=sell"+
     "&items="+encodeURIComponent(JSON.stringify(items))+
@@ -273,8 +261,24 @@ function saveBill(){
 
 /* WHATSAPP */
 function sendWA(){
-  let msg=`SVLN SOLUTIONS Invoice\nAmount ₹${grand.toFixed(2)}\nThank you for your business`;
+  let msg=`SVLN SOLUTIONS Invoice\nAmount ₹${grandTotal.toFixed(2)}\nThank you`;
   window.open("https://wa.me/91"+mobile.value+"?text="+encodeURIComponent(msg));
+}
+
+/* AMOUNT IN WORDS (INDIAN) */
+function toWords(num){
+  const a=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten',
+  'Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const b=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  function n2w(n){
+    if(n<20)return a[n];
+    if(n<100)return b[Math.floor(n/10)]+' '+a[n%10];
+    if(n<1000)return a[Math.floor(n/100)]+' Hundred '+n2w(n%100);
+    if(n<100000)return n2w(Math.floor(n/1000))+' Thousand '+n2w(n%1000);
+    if(n<10000000)return n2w(Math.floor(n/100000))+' Lakh '+n2w(n%100000);
+    return n2w(Math.floor(n/10000000))+' Crore '+n2w(n%10000000);
+  }
+  return n2w(Math.floor(num))+' Rupees Only';
 }
 </script>
 
