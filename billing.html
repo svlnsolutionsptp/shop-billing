@@ -4,26 +4,23 @@
 <title>SVLN SOLUTIONS - GST BILL</title>
 
 <style>
-body { font-family: Arial; background:#eaeaea; }
-.bill { width:210mm; margin:auto; background:#fff; padding:20px; }
+body{font-family:Arial;background:#eee;}
+.bill{width:210mm;margin:auto;background:#fff;padding:20px;}
 
-h1 { text-align:center; color:#0a4da3; margin:5px; }
-.shop { text-align:center; font-size:14px; }
+h1{text-align:center;color:#0a4da3;margin:5px;}
+.shop{text-align:center;font-size:14px;}
 
-table { width:100%; border-collapse:collapse; margin-top:10px; }
-th { background:#0a4da3; color:#fff; padding:8px; }
-td { border:1px solid #000; padding:6px; text-align:center; }
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+th{background:#0a4da3;color:#fff;padding:6px;}
+td{border:1px solid #000;padding:6px;text-align:center;}
 
-.total-box { width:40%; float:right; margin-top:10px; }
-.total-box td { font-weight:bold; }
+input,select{width:100%;padding:5px;}
+.total-box{width:40%;float:right;}
+.footer{text-align:center;margin-top:30px;font-weight:bold;}
 
-input, select { width:100%; }
-
-.footer { text-align:center; margin-top:30px; font-weight:bold; }
-
-@media print {
- button { display:none; }
- body { background:#fff; }
+@media print{
+button{display:none;}
+body{background:#fff;}
 }
 </style>
 </head>
@@ -43,13 +40,11 @@ PIN: 533450<br>
 
 <table>
 <tr>
-<td><b>Bill Date:</b> <span id="bdate"></span></td>
-<td><b>Customer:</b> <input id="cname"></td>
-<td><b>Mobile:</b> <input id="mobile"></td>
+<td>Bill Date: <b id="bdate"></b></td>
+<td>Customer: <input id="cname"></td>
+<td>Mobile: <input id="mobile"></td>
 </tr>
 </table>
-
-<br>
 
 <table>
 <tr>
@@ -57,12 +52,10 @@ PIN: 533450<br>
 <th>Qty</th>
 <th>Price</th>
 <th>Amount</th>
-<th>Action</th>
+<th></th>
 </tr>
 <tr>
-<td>
-<select id="item"></select>
-</td>
+<td><select id="item"></select></td>
 <td><input id="qty" type="number" value="1"></td>
 <td><input id="price"></td>
 <td id="amt">0</td>
@@ -70,13 +63,9 @@ PIN: 533450<br>
 </tr>
 </table>
 
-<table id="items">
+<table id="billTable">
 <tr>
-<th>S.No</th>
-<th>Item</th>
-<th>Qty</th>
-<th>Price</th>
-<th>Amount</th>
+<th>S.No</th><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th>
 </tr>
 </table>
 
@@ -86,110 +75,107 @@ PIN: 533450<br>
 <td>GST % <input id="gstp" value="18" oninput="calc()"></td>
 <td id="gst">0</td>
 </tr>
-<tr><td>Grand Total</td><td id="grand">0</td></tr>
+<tr><td>Grand</td><td id="grand">0</td></tr>
 </table>
 
 <br style="clear:both">
 
 <button onclick="saveBill()">Generate Bill</button>
-<button onclick="window.print()">Print A4</button>
+<button onclick="window.print()">Print</button>
 
 <div class="footer">
-🙏 Thank You – Visit Again 🙏
+🙏 Thank you – Visit Again 🙏
 </div>
 
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbyYdJ3ptk2q7el1PRKxd5wjOiL51UZUeurSOgBqz57MiT7_sHPt7jLZOfe83omma6MvMg/exec";
+const API="PASTE_NEW_APPS_SCRIPT_URL";
 
 document.getElementById("bdate").innerText =
   new Date().toLocaleDateString();
 
-let products=[], billItems=[], total=0, sno=1;
+let products=[];
+let billItems=[];
+let total=0;
+let sno=1;
 
+/* LOAD PRODUCTS */
 fetch(API+"?action=products")
 .then(r=>r.json())
 .then(data=>{
   products=data;
   data.forEach(p=>{
-    let opt=document.createElement("option");
-    opt.value=p[0];
-    opt.text=p[0]+" - "+p[1];
-    opt.dataset.price=p[3];
-    item.appendChild(opt);
+    let o=document.createElement("option");
+    o.value=p[0];
+    o.text=p[0]+" - "+p[1];
+    o.dataset.price=p[3];
+    item.appendChild(o);
   });
   price.value=item.options[0].dataset.price;
+  calcAmt();
 });
 
-item.onchange=()=>price.value=item.options[item.selectedIndex].dataset.price;
-qty.oninput=()=>amt.innerText=(qty.value*price.value).toFixed(2);
-price.oninput=()=>amt.innerText=(qty.value*price.value).toFixed(2);
+/* AUTO PRICE */
+item.onchange=()=>{
+  price.value=item.options[item.selectedIndex].dataset.price;
+  calcAmt();
+};
+qty.oninput=calcAmt;
+price.oninput=calcAmt;
+
+function calcAmt(){
+  amt.innerText=(qty.value*price.value).toFixed(2);
+}
 
 function addItem(){
- let code=item.value;
- let name=item.options[item.selectedIndex].text;
- let q=Number(qty.value);
- let p=Number(price.value);
- let a=q*p;
+  let code=item.value;
+  let name=item.options[item.selectedIndex].text;
+  let q=Number(qty.value);
+  let p=Number(price.value);
+  let a=q*p;
 
- billItems.push({code:code, qty:q});
- total+=a;
+  billItems.push({code:code,qty:q});
+  total+=a;
 
- let r=items.insertRow();
- r.insertCell(0).innerText=sno++;
- r.insertCell(1).innerText=name;
- r.insertCell(2).innerText=q;
- r.insertCell(3).innerText=p;
- r.insertCell(4).innerText=a;
+  let r=billTable.insertRow();
+  r.insertCell(0).innerText=sno++;
+  r.insertCell(1).innerText=name;
+  r.insertCell(2).innerText=q;
+  r.insertCell(3).innerText=p;
+  r.insertCell(4).innerText=a;
 
- calc();
+  calc();
 }
 
 function calc(){
- let gper=Number(gstp.value);
- let g=total*gper/100;
- totalCell.innerText=total.toFixed(2);
- gst.innerText=g.toFixed(2);
- grand.innerText=(total+g).toFixed(2);
+  let g=total*Number(gstp.value)/100;
+  totalEl.innerText=total.toFixed(2);
+  gst.innerText=g.toFixed(2);
+  grand.innerText=(total+g).toFixed(2);
 }
 
-<script>
 function saveBill(){
-
-  if(billItems.length === 0){
-    alert("Please add items first");
+  if(billItems.length==0){
+    alert("Add items first");
     return;
   }
-
-  if(cname.value.trim() === ""){
-    alert("Enter customer name");
-    return;
-  }
-
-  let url = API +
-    "?action=sell" +
-    "&items=" + encodeURIComponent(JSON.stringify(billItems)) +
-    "&cname=" + encodeURIComponent(cname.value) +
-    "&mobile=" + encodeURIComponent(mobile.value);
+  let url=API+
+   "?action=sell"+
+   "&items="+encodeURIComponent(JSON.stringify(billItems))+
+   "&cname="+encodeURIComponent(cname.value)+
+   "&mobile="+encodeURIComponent(mobile.value);
 
   fetch(url)
-    .then(res => res.text())
-    .then(txt => {
-      alert("Bill Generated Successfully\nBill No: " + txt);
-      location.reload(); // reset bill
-    })
-    .catch(err => {
-      alert("Error generating bill");
-      console.error(err);
-    });
+  .then(r=>r.text())
+  .then(t=>{
+    alert("Bill Saved: "+t);
+    location.reload();
+  });
 }
-</script>
 
-const totalCell=document.getElementById("total");
+const totalEl=document.getElementById("total");
 </script>
 
 </body>
 </html>
-
-
