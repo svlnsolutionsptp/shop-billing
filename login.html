@@ -14,26 +14,16 @@ body{
   font-family:Arial;
   background:linear-gradient(135deg,#1f4fd8,#6fa8ff);
 }
-
 .login-box{
   width:360px;
   background:#fff;
   padding:30px;
   border-radius:12px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+  box-shadow:0 10px 30px rgba(0,0,0,0.25);
   text-align:center;
 }
-
-.login-box h2{
-  margin:0;
-  color:#1f4fd8;
-}
-
-.login-box p{
-  color:#555;
-  margin-bottom:20px;
-}
-
+.login-box h2{margin:0;color:#1f4fd8;}
+.login-box p{color:#555;margin-bottom:20px;}
 input{
   width:100%;
   padding:12px;
@@ -42,7 +32,6 @@ input{
   border:1px solid #ccc;
   border-radius:6px;
 }
-
 button{
   width:100%;
   padding:12px;
@@ -53,16 +42,7 @@ button{
   border-radius:6px;
   cursor:pointer;
 }
-
-button:hover{
-  background:#163bb5;
-}
-
-#error{
-  margin-top:15px;
-  color:red;
-  font-size:14px;
-}
+#error{margin-top:15px;color:red;font-size:14px;}
 </style>
 </head>
 
@@ -81,15 +61,14 @@ button:hover{
 </div>
 
 <script>
-/* 🔴 PASTE YOUR LATEST APPS SCRIPT URL HERE */
-const API = "https://script.google.com/macros/s/AKfycbzz1zHCF_0CSMCVwD7LuU5kmoVpQWfkkW13I4MEZ_YAtREeZ1MJniVeAMqM2JzpgLdtLg/exec";
+const API = "https://script.google.com/macros/s/AKfycbyA4XgcGiMJpf93JrakxFncZeLCGX2et3gpNlPasaLHk11D_tsaJdBZm12P6s59Uw8M/exec";
 
 function login(){
 
   error.innerText = "";
 
   if(user.value.trim()==="" || pass.value.trim()===""){
-    error.innerText = "Please enter username and password";
+    error.innerText = "Enter username and password";
     return;
   }
 
@@ -101,29 +80,19 @@ function login(){
   )
   .then(r => r.text())
   .then(res => {
-
     if(res === "SUCCESS"){
-      // redirect after login
-     window.location.href = "dashboard.html";
-
-
-    }
-    else if(res === "NO_USERS_SHEET"){
+      window.location.href = "dashboard.html";
+    }else if(res === "NO_USERS_SHEET"){
       error.innerText = "Users sheet not found";
-    }
-    else{
+    }else{
       error.innerText = "Invalid username or password";
     }
-
   })
-  .catch(() => {
-    error.innerText = "Connection error. Check internet or API URL.";
+  .catch(()=>{
+    error.innerText = "API connection failed";
   });
 }
 </script>
 
 </body>
 </html>
-
-
-
