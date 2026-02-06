@@ -4,32 +4,44 @@
 <title>Purchase</title>
 <style>
 body{font-family:Arial;background:#f2f2f2;}
-.box{width:400px;margin:60px auto;background:#fff;padding:20px;border-radius:10px;}
+.box{width:420px;margin:60px auto;background:#fff;padding:20px;border-radius:10px;}
 input,button{width:100%;padding:10px;margin:8px 0;}
 button{background:#0a4da3;color:#fff;border:none;}
 </style>
 </head>
-<body>
 
+<body>
 <div class="box">
-<h2>Purchase</h2>
+<h2>Purchase Entry</h2>
+
 <input id="supplier" placeholder="Supplier">
 <input id="code" placeholder="Item Code">
-<input id="name" placeholder="Item Name">
+<input id="iname" placeholder="Item Name">
 <input id="qty" type="number" placeholder="Qty">
 <input id="cost" type="number" placeholder="Cost">
+
 <button onclick="save()">Save Purchase</button>
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbzPfrF8QAfR6CSGsuLnwCIASOTKobXiw9PqPc3a5JqwcvOMI4pcfChUfSrAHQkLZ0u_8g/exec";
+const API="https://script.google.com/macros/s/AKfycbymUAdMOAvEnqQGCoX7EAsDwc-MUO0nWa8vysZCuWMAJTYRcUxCFYjNMJqxLPRTXQtngg/exec";
+
 function save(){
- fetch(`${API}?action=purchase&supplier=${supplier.value}&code=${code.value}&name=${name.value}&qty=${qty.value}&cost=${cost.value}`)
- .then(r=>r.text()).then(t=>alert(t));
+ if(!supplier.value||!code.value||!iname.value||!qty.value||!cost.value){
+  alert("All fields required"); return;
+ }
+
+ fetch(
+  API+"?action=purchase"+
+  "&supplier="+encodeURIComponent(supplier.value)+
+  "&code="+encodeURIComponent(code.value)+
+  "&name="+encodeURIComponent(iname.value)+
+  "&qty="+qty.value+
+  "&cost="+cost.value
+ )
+ .then(r=>r.text())
+ .then(t=>alert(t));
 }
 </script>
-
 </body>
 </html>
-
-
