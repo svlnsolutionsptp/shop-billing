@@ -1,46 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SVLN SOLUTIONS - Login</title>
+<title>SVLN Login</title>
 <style>
-body{
-  margin:0;height:100vh;display:flex;justify-content:center;align-items:center;
-  background:linear-gradient(135deg,#0a4da3,#00b4db);font-family:Arial;
-}
-.box{
-  width:360px;background:#fff;padding:30px;border-radius:10px;text-align:center;
-  box-shadow:0 10px 25px rgba(0,0,0,.3);
-}
-input{width:100%;padding:10px;margin:10px 0;}
-button{width:100%;padding:10px;background:#0a4da3;color:#fff;border:none;}
-#error{color:red;}
+body{display:flex;justify-content:center;align-items:center;height:100vh;background:#0a4da3;font-family:Arial;}
+.box{background:#fff;padding:30px;border-radius:10px;width:300px;text-align:center;}
+input,button{width:100%;padding:10px;margin:10px 0;}
+button{background:#0a4da3;color:#fff;border:none;}
 </style>
 </head>
-
 <body>
-<div class="box">
-<h1>SVLN SOLUTIONS</h1>
-<p>Welcome – Login</p>
 
+<div class="box">
+<h2>SVLN SOLUTIONS</h2>
 <input id="u" placeholder="Username">
 <input id="p" type="password" placeholder="Password">
-
 <button onclick="login()">Login</button>
-<div id="error"></div>
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbx17UA-wfZTPnai9N5EjiAy2M_0wWkcovrC1QyDZWEAw3l3Bk3IHbXWxpzMW7WrAbwGBQ/exec";
-
+const API="https://script.google.com/macros/s/AKfycbz05MprZLf00ecCq3ldncu0OcTCCzVtoKPHD0y0iDTB2g8s8wMqWhW5b4Q_m3Vtry4wTg/exec";
 function login(){
  fetch(`${API}?action=login&user=${u.value}&pass=${p.value}`)
  .then(r=>r.text())
- .then(res=>{
-   if(res=="SUCCESS") location.href="billing.html";
-   else error.innerText="Invalid Login";
- });
+ .then(t=>t=="SUCCESS"?location.href="dashboard.html":alert("Invalid Login"));
 }
 </script>
+
 </body>
 </html>
-
