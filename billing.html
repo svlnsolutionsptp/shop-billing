@@ -7,7 +7,7 @@
 body{font-family:Arial;background:#eee;}
 .bill{width:210mm;margin:auto;background:#fff;padding:20px;}
 
-h1{text-align:center;color:#0a4da3;margin:5px;}
+h1{text-align:center;color:#0a4da3;}
 .shop{text-align:center;font-size:14px;}
 
 table{width:100%;border-collapse:collapse;margin-top:10px;}
@@ -15,7 +15,7 @@ th{background:#0a4da3;color:#fff;padding:6px;}
 td{border:1px solid #000;padding:6px;text-align:center;}
 
 input,select{width:100%;padding:5px;}
-.total-box{width:40%;float:right;}
+.total{width:40%;float:right;}
 .footer{text-align:center;margin-top:30px;font-weight:bold;}
 
 @media print{
@@ -40,7 +40,7 @@ PIN: 533450<br>
 
 <table>
 <tr>
-<td>Bill Date: <b id="bdate"></b></td>
+<td>Date: <b id="bdate"></b></td>
 <td>Customer: <input id="cname"></td>
 <td>Mobile: <input id="mobile"></td>
 </tr>
@@ -48,11 +48,7 @@ PIN: 533450<br>
 
 <table>
 <tr>
-<th>Item</th>
-<th>Qty</th>
-<th>Price</th>
-<th>Amount</th>
-<th></th>
+<th>Item</th><th>Qty</th><th>Price</th><th>Amount</th><th></th>
 </tr>
 <tr>
 <td><select id="item"></select></td>
@@ -69,7 +65,7 @@ PIN: 533450<br>
 </tr>
 </table>
 
-<table class="total-box">
+<table class="total">
 <tr><td>Total</td><td id="total">0</td></tr>
 <tr>
 <td>GST % <input id="gstp" value="18" oninput="calc()"></td>
@@ -83,95 +79,67 @@ PIN: 533450<br>
 <button onclick="saveBill()">Generate Bill</button>
 <button onclick="window.print()">Print</button>
 
-<div class="footer">
-🙏 Thank you – Visit Again 🙏
-</div>
+<div class="footer">🙏 Thank You – Visit Again 🙏</div>
 
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbwM-AnXF4S59gSYo03kQ9kecu2yUbWYBwHJwX0RziGIa5-TEF26cFLbo9xreC3tPVtBtw/exec";
+const API="https://script.google.com/macros/s/AKfycbwvm0tzfhFChUVXsA1atsryH7N4ruFITILWIQ8aWNmEwjq-VBvieBH0C5LeDDF1Iyv94A/exec";
 
-document.getElementById("bdate").innerText =
-  new Date().toLocaleDateString();
+bdate.innerText=new Date().toLocaleDateString();
 
-let products=[];
-let billItems=[];
-let total=0;
-let sno=1;
+let billItems=[],total=0,sno=1;
 
-/* LOAD PRODUCTS */
 fetch(API+"?action=products")
 .then(r=>r.json())
-.then(data=>{
-  products=data;
-  data.forEach(p=>{
-    let o=document.createElement("option");
-    o.value=p[0];
-    o.text=p[0]+" - "+p[1];
-    o.dataset.price=p[3];
-    item.appendChild(o);
-  });
-  price.value=item.options[0].dataset.price;
-  calcAmt();
+.then(d=>{
+ d.forEach(p=>{
+  let o=document.createElement("option");
+  o.value=p[0];
+  o.text=p[0]+" - "+p[1];
+  o.dataset.price=p[3];
+  item.appendChild(o);
+ });
+ price.value=item.options[0].dataset.price;
+ calcAmt();
 });
 
-/* AUTO PRICE */
-item.onchange=()=>{
-  price.value=item.options[item.selectedIndex].dataset.price;
-  calcAmt();
-};
+item.onchange=()=>{price.value=item.options[item.selectedIndex].dataset.price;calcAmt();}
 qty.oninput=calcAmt;
 price.oninput=calcAmt;
 
 function calcAmt(){
-  amt.innerText=(qty.value*price.value).toFixed(2);
+ amt.innerText=(qty.value*price.value).toFixed(2);
 }
 
 function addItem(){
-  let code=item.value;
-  let name=item.options[item.selectedIndex].text;
-  let q=Number(qty.value);
-  let p=Number(price.value);
-  let a=q*p;
+ let q=Number(qty.value),p=Number(price.value);
+ let a=q*p;
+ billItems.push({code:item.value,qty:q});
+ total+=a;
 
-  billItems.push({code:code,qty:q});
-  total+=a;
+ let r=billTable.insertRow();
+ r.insertCell(0).innerText=sno++;
+ r.insertCell(1).innerText=item.options[item.selectedIndex].text;
+ r.insertCell(2).innerText=q;
+ r.insertCell(3).innerText=p;
+ r.insertCell(4).innerText=a;
 
-  let r=billTable.insertRow();
-  r.insertCell(0).innerText=sno++;
-  r.insertCell(1).innerText=name;
-  r.insertCell(2).innerText=q;
-  r.insertCell(3).innerText=p;
-  r.insertCell(4).innerText=a;
-
-  calc();
+ calc();
 }
 
 function calc(){
-  let g=total*Number(gstp.value)/100;
-  totalEl.innerText=total.toFixed(2);
-  gst.innerText=g.toFixed(2);
-  grand.innerText=(total+g).toFixed(2);
+ let g=total*gstp.value/100;
+ totalEl.innerText=total.toFixed(2);
+ gst.innerText=g.toFixed(2);
+ grand.innerText=(total+g).toFixed(2);
 }
 
 function saveBill(){
-  if(billItems.length==0){
-    alert("Add items first");
-    return;
-  }
-  let url=API+
-   "?action=sell"+
-   "&items="+encodeURIComponent(JSON.stringify(billItems))+
-   "&cname="+encodeURIComponent(cname.value)+
-   "&mobile="+encodeURIComponent(mobile.value);
-
-  fetch(url)
-  .then(r=>r.text())
-  .then(t=>{
-    alert("Bill Saved: "+t);
-    location.reload();
-  });
+ if(billItems.length==0){alert("Add items");return;}
+ fetch(API+"?action=sell&items="+encodeURIComponent(JSON.stringify(billItems))+
+ "&cname="+encodeURIComponent(cname.value)+"&mobile="+encodeURIComponent(mobile.value))
+ .then(r=>r.text()).then(t=>alert("Bill Saved "+t));
 }
 
 const totalEl=document.getElementById("total");
@@ -179,4 +147,3 @@ const totalEl=document.getElementById("total");
 
 </body>
 </html>
-
