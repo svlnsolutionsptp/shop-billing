@@ -135,15 +135,41 @@ function calc(){
  grand.innerText=(total+g).toFixed(2);
 }
 
+<script>
 function saveBill(){
- if(billItems.length==0){alert("Add items");return;}
- fetch(API+"?action=sell&items="+encodeURIComponent(JSON.stringify(billItems))+
- "&cname="+encodeURIComponent(cname.value)+"&mobile="+encodeURIComponent(mobile.value))
- .then(r=>r.text()).then(t=>alert("Bill Saved "+t));
-}
 
-const totalEl=document.getElementById("total");
+  if(cname.value.trim() === ""){
+    alert("Please enter Customer Name");
+    cname.focus();
+    return;
+  }
+
+  if(mobile.value.trim() === "" || mobile.value.length < 10){
+    alert("Please enter valid Mobile Number");
+    mobile.focus();
+    return;
+  }
+
+  if(billItems.length === 0){
+    alert("Please add at least one item");
+    return;
+  }
+
+  fetch(API+
+   "?action=sell"+
+   "&items="+encodeURIComponent(JSON.stringify(billItems))+
+   "&cname="+encodeURIComponent(cname.value)+
+   "&mobile="+encodeURIComponent(mobile.value))
+  .then(r=>r.text())
+  .then(t=>{
+    alert("Bill Generated : "+t);
+    location.reload();
+  });
+}
+</script>
+
 </script>
 
 </body>
 </html>
+
