@@ -1,67 +1,228 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SVLN Billing</title>
+<meta charset="UTF-8">
+<title>SVLN SOLUTIONS - Invoice</title>
+
 <style>
-body{font-family:Arial;background:#f4f6fb}
-.container{width:800px;margin:auto;background:#fff;padding:20px}
-table{width:100%;border-collapse:collapse}
-th,td{border:1px solid #ccc;padding:6px;text-align:center}
-th{background:#1f4fd8;color:#fff}
-button{padding:8px 14px;background:#1f4fd8;color:#fff;border:none}
-button:active{transform:scale(.95);opacity:.8}
-@media print{.no-print{display:none}}
+body{
+  font-family: Arial, Helvetica, sans-serif;
+  background:#eee;
+}
+
+.invoice{
+  width:800px;
+  margin:20px auto;
+  background:#fff;
+  box-shadow:0 5px 20px rgba(0,0,0,.25);
+}
+
+/* HEADER */
+.header{
+  background:linear-gradient(135deg,#111 60%, #c60000 60%);
+  color:#fff;
+  padding:20px;
+}
+.header h2{
+  margin:0;
+}
+.header small{
+  font-size:13px;
+}
+
+/* TITLE */
+.title{
+  display:flex;
+  justify-content:space-between;
+  padding:20px;
+}
+.title h1{
+  margin:0;
+  letter-spacing:2px;
+}
+.meta{
+  text-align:right;
+  font-size:14px;
+}
+
+/* CUSTOMER */
+.section{
+  padding:0 20px 10px 20px;
+}
+.section b{
+  display:block;
+  margin-bottom:4px;
+}
+
+/* TABLE */
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+thead{
+  background:#c60000;
+  color:#fff;
+}
+th,td{
+  padding:8px;
+  border:1px solid #ccc;
+  text-align:center;
+}
+td.text-left{
+  text-align:left;
+}
+
+/* TOTAL */
+.total-box{
+  width:300px;
+  margin-left:auto;
+  margin-top:10px;
+}
+.total-box td{
+  text-align:right;
+}
+
+/* FOOTER */
+.footer{
+  background:#c60000;
+  color:#fff;
+  text-align:center;
+  padding:10px;
+  margin-top:20px;
+  font-size:14px;
+}
+
+.actions{
+  text-align:center;
+  padding:15px;
+}
+
+button{
+  padding:8px 16px;
+  margin:5px;
+  background:#111;
+  color:#fff;
+  border:none;
+  cursor:pointer;
+}
+button:active{
+  transform:scale(.95);
+  opacity:.85;
+}
+
+input,select{
+  padding:6px;
+  margin:4px 0;
+}
+
+@media print{
+  body{background:#fff}
+  .actions{display:none}
+}
 </style>
 </head>
 
 <body>
-<div class="container">
 
-<h2 align="center">SVLN SOLUTIONS</h2>
+<div class="invoice">
 
-Mobile:
-<input id="mobile" onblur="fetchCustomer()">
-Name:
-<input id="cname">
+  <!-- HEADER -->
+  <div class="header">
+    <h2>SVLN SOLUTIONS</h2>
+    <small>
+      5-33, Gold Market Street, Pithapuram, Andhra Pradesh – 533450<br>
+      📞 9533330347, 9494488885
+    </small>
+  </div>
 
-<hr>
+  <!-- TITLE -->
+  <div class="title">
+    <h1>INVOICE</h1>
+    <div class="meta">
+      Invoice No: <b id="billno">—</b><br>
+      Date: <b id="billdate"></b>
+    </div>
+  </div>
 
-<select id="item"></select>
-Qty <input id="qty" type="number" value="1" style="width:60px">
-Rate <input id="price" style="width:80px">
-GST% <input id="gst" value="18" style="width:60px">
-<button onclick="addItem()">Add</button>
+  <!-- CUSTOMER -->
+  <div class="section">
+    <b>Invoice To</b>
+    Mobile:
+    <input id="mobile" onblur="fetchCustomer()">
+    Name:
+    <input id="cname">
+  </div>
 
-<table id="bill">
-<tr><th>#</th><th>Item</th><th>Qty</th><th>Rate</th><th>GST%</th><th>Total</th></tr>
-</table>
+  <!-- ITEM ENTRY (NOT PRINTED) -->
+  <div class="section actions">
+    <select id="item"></select>
+    Qty <input id="qty" type="number" value="1" style="width:60px">
+    Rate <input id="price" style="width:80px">
+    GST% <input id="gst" value="18" style="width:60px">
+    <button onclick="addItem()">Add Item</button>
+  </div>
 
-<h3 align="right">Grand Total ₹ <span id="grand">0</span></h3>
+  <!-- ITEMS TABLE -->
+  <table id="bill">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th class="text-left">Product</th>
+        <th>Price</th>
+        <th>Qty</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-<div class="no-print">
-<button onclick="saveBill()">Generate Bill</button>
-<button onclick="window.print()">Print</button>
-</div>
+  <!-- TOTAL -->
+  <table class="total-box">
+    <tr>
+      <td><b>Grand Total</b></td>
+      <td><b>₹ <span id="grand">0.00</span></b></td>
+    </tr>
+  </table>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    Thank you for your business
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actions">
+    <button onclick="saveBill()">Generate Bill</button>
+    <button onclick="window.print()">Print</button>
+    <button onclick="sendWA()">WhatsApp</button>
+  </div>
 
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbyzDdO8_WNehVom7G8BIoGrbOw5HeeEFOi9Zp8BamFyi-U6qMvYDS8h4H1p6kg_UUYSHw/exec";
+const API = "https://script.google.com/macros/s/AKfycbyzDdO8_WNehVom7G8BIoGrbOw5HeeEFOi9Zp8BamFyi-U6qMvYDS8h4H1p6kg_UUYSHw/exec";
 
 let items=[], sno=1, grand=0;
 
+/* DATE */
+billdate.innerText = new Date().toLocaleDateString();
+
 /* LOAD PRODUCTS */
-fetch(API+"?action=products").then(r=>r.json()).then(d=>{
+fetch(API+"?action=products")
+.then(r=>r.json())
+.then(d=>{
   d.forEach(p=>{
     let o=document.createElement("option");
-    o.value=p[0]; o.text=p[1]; o.dataset.price=p[3];
+    o.value=p[0];
+    o.text=p[1];
+    o.dataset.price=p[3];
     item.appendChild(o);
   });
   price.value=item.options[0].dataset.price;
 });
 item.onchange=()=>price.value=item.options[item.selectedIndex].dataset.price;
 
-/* FETCH CUSTOMER */
+/* CUSTOMER AUTO FETCH */
 function fetchCustomer(){
   if(!mobile.value) return;
   fetch(API+"?action=getCustomer&mobile="+mobile.value)
@@ -71,24 +232,26 @@ function fetchCustomer(){
 
 /* ADD ITEM */
 function addItem(){
-  let q=+qty.value,p=+price.value,g=+gst.value;
-  let t=(q*p)+(q*p*g/100);
-  grand+=t;
+  let q=+qty.value, p=+price.value, g=+gst.value;
+  let total=(q*p)+(q*p*g/100);
+  grand+=total;
+
   items.push({code:item.value,qty:q,price:p,gst:g});
-  let r=bill.insertRow();
+
+  let r=bill.tBodies[0].insertRow();
   r.insertCell(0).innerText=sno++;
   r.insertCell(1).innerText=item.options[item.selectedIndex].text;
-  r.insertCell(2).innerText=q;
-  r.insertCell(3).innerText=p;
-  r.insertCell(4).innerText=g;
-  r.insertCell(5).innerText=t.toFixed(2);
+  r.insertCell(2).innerText=p.toFixed(2);
+  r.insertCell(3).innerText=q;
+  r.insertCell(4).innerText=total.toFixed(2);
+
   grand.innerText=grand.toFixed(2);
 }
 
-/* SAVE BILL – VALIDATION */
+/* SAVE BILL */
 function saveBill(){
-  if(mobile.value==="" || cname.value===""){
-    alert("Customer Name & Mobile are required");
+  if(!mobile.value || !cname.value){
+    alert("Customer name & mobile required");
     return;
   }
   if(items.length===0){
@@ -102,14 +265,16 @@ function saveBill(){
     "&mobile="+encodeURIComponent(mobile.value)
   )
   .then(r=>r.text())
-  .then(res=>{
-    if(res==="ERROR"){
-      alert("Missing customer details");
-    }else{
-      alert("Bill Generated : "+res);
-      setTimeout(()=>window.print(),500);
-    }
+  .then(b=>{
+    billno.innerText=b;
+    alert("Invoice Generated: "+b);
   });
+}
+
+/* WHATSAPP */
+function sendWA(){
+  let msg=`SVLN SOLUTIONS Invoice\nAmount ₹${grand.toFixed(2)}\nThank you for your business`;
+  window.open("https://wa.me/91"+mobile.value+"?text="+encodeURIComponent(msg));
 }
 </script>
 
