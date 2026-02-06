@@ -1,0 +1,42 @@
+<h2>SVLN SOLUTIONS – GST BILL</h2>
+
+Customer <input id="cname">
+Mobile <input id="mobile"><br><br>
+
+Item Code <input id="code">
+Qty <input id="qty">
+<button onclick="add()">Add</button>
+
+<table border="1" id="cart">
+<tr><th>Code</th><th>Qty</th></tr>
+</table>
+
+<p>Total ₹<span id="t">0</span></p>
+<p>GST 18% ₹<span id="g">0</span></p>
+<p><b>Grand ₹<span id="f">0</span></b></p>
+
+<button onclick="save()">Generate Bill</button>
+<button onclick="window.print()">Print</button>
+
+<script>
+const API="PASTE_API_URL";
+let items=[],total=0;
+
+function add(){
+ items.push({code:code.value,qty:Number(qty.value)});
+ let r=cart.insertRow();
+ r.insertCell(0).innerText=code.value;
+ r.insertCell(1).innerText=qty.value;
+ total+=qty.value*1;
+ t.innerText=total;
+ g.innerText=(total*0.18).toFixed(2);
+ f.innerText=(total*1.18).toFixed(2);
+}
+
+function save(){
+ fetch(API,{
+  method:"POST",
+  body:JSON.stringify({items,cname:cname.value,mobile:mobile.value})
+ }).then(r=>r.text()).then(alert);
+}
+</script>

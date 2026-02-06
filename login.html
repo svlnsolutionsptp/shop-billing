@@ -1,0 +1,16 @@
+<h2>SVLN SOLUTIONS Login</h2>
+<input id="u" placeholder="Username">
+<input id="p" type="password" placeholder="Password">
+<button onclick="go()">Login</button>
+<p id="m"></p>
+
+<script>
+const API="PASTE_API_URL";
+function go(){
+ fetch(`${API}?action=login&user=${u.value}&pass=${p.value}`)
+ .then(r=>r.text()).then(t=>{
+  if(t=="SUCCESS") location.href="billing.html";
+  else m.innerText="Login Failed";
+ });
+}
+</script>
