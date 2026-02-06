@@ -6,24 +6,25 @@
 <style>
 body{font-family:Arial;background:#eee;}
 .bill{width:210mm;margin:auto;background:#fff;padding:20px;}
+
 h1{text-align:center;color:#0a4da3;margin:5px;}
 .shop{text-align:center;font-size:14px;}
 
 table{width:100%;border-collapse:collapse;margin-top:10px;}
-th{background:#0a4da3;color:#fff;padding:6px;}
-td{border:1px solid #000;padding:6px;text-align:center;}
+th,td{border:1px solid #000;padding:6px;text-align:center;}
+th{background:#0a4da3;color:#fff;}
 
 input,select{width:100%;padding:5px;font-size:14px;}
-
-.total{width:40%;float:right;}
-.footer{text-align:center;margin-top:30px;font-weight:bold;}
 button{padding:8px 14px;margin:5px;}
 
-/* ===== PRINT CONTROL ===== */
-.print-only{display:none;}
+.print-text{display:none;}
+.no-print{}
+
+/* ===== PRINT FIX (IMPORTANT) ===== */
 @media print{
-  button,.no-print,input,select{display:none !important;}
-  .print-only{display:inline;}
+  .no-print{display:none !important;}
+  input,select,button{display:none !important;}
+  .print-text{display:inline !important;}
   body{background:#fff;}
 }
 </style>
@@ -36,7 +37,7 @@ button{padding:8px 14px;margin:5px;}
 <h1>SVLN SOLUTIONS</h1>
 <div class="shop">
 5-33, Gold Market Street, Pithapuram, Andhra Pradesh<br>
-PIN: 533450 | 📞 9533330347, 9494488885
+PIN CODE: 533450 | 📞 9533330347, 9494488885
 </div>
 
 <hr>
@@ -44,19 +45,24 @@ PIN: 533450 | 📞 9533330347, 9494488885
 <table>
 <tr>
 <td>
+Bill No:
+<b id="billno" class="print-text"></b>
+</td>
+
+<td>
 Date:
 <b id="bdate"></b>
 </td>
 
 <td>
-Customer Name:
-<span class="print-only" id="pcname"></span>
+Customer:
+<span class="print-text" id="pcname"></span>
 <input id="cname" class="no-print">
 </td>
 
 <td>
 Mobile:
-<span class="print-only" id="pmobile"></span>
+<span class="print-text" id="pmobile"></span>
 <input id="mobile" class="no-print">
 </td>
 </tr>
@@ -71,55 +77,48 @@ Mobile:
 <th class="no-print"></th>
 </tr>
 
-<tr>
+<tr class="no-print">
 <td><select id="item"></select></td>
 <td><input id="qty" type="number" value="1"></td>
 <td><input id="price"></td>
 <td id="amt">0</td>
-<td class="no-print">
-<button onclick="addItem()">Add</button>
-</td>
+<td><button onclick="addItem()">Add</button></td>
 </tr>
 </table>
 
 <table id="billTable">
 <tr>
-<th>S.No</th>
-<th>Item</th>
-<th>Qty</th>
-<th>Price</th>
-<th>Amount</th>
+<th>S.No</th><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th>
 </tr>
 </table>
 
-<table class="total">
+<table style="width:40%;float:right;">
 <tr><td>Total</td><td id="total">0</td></tr>
-<tr>
-<td>GST % <input id="gstp" value="18" oninput="calc()"></td>
-<td id="gst">0</td>
-</tr>
-<tr><td>Grand Total</td><td id="grand">0</td></tr>
+<tr><td>GST</td><td id="gst">0</td></tr>
+<tr><td>Grand</td><td id="grand">0</td></tr>
 </table>
 
 <p><b>Amount in Words:</b> <span id="words"></span></p>
 
 <br style="clear:both">
 
-<button onclick="saveBill()">Generate Bill</button>
-<button onclick="window.print()">Print</button>
-<button onclick="sendWhatsApp()">Send WhatsApp</button>
+<button class="no-print" onclick="saveBill()">Generate Bill</button>
+<button class="no-print" onclick="window.print()">Print</button>
+<button class="no-print" onclick="sendWhatsApp()">Send WhatsApp</button>
 
-<div class="footer">🙏 Thank You – Visit Again 🙏</div>
+<div style="text-align:center;font-weight:bold;margin-top:20px;">
+🙏 Thank You – Visit Again 🙏
+</div>
 
 </div>
 
 <script>
 /* ===== CONFIG ===== */
-const API="https://script.google.com/macros/s/AKfycbyD8AUjyGccSxZ5RzPVi_Xxb2fDg8bl1jTAJdS2hYvGRD4wWiadMgSCfau73uFTj-4B/exec";
+const API="https://script.google.com/macros/s/AKfycbzPfrF8QAfR6CSGsuLnwCIASOTKobXiw9PqPc3a5JqwcvOMI4pcfChUfSrAHQkLZ0u_8g/exec";
 
 /* ===== INIT ===== */
 bdate.innerText=new Date().toLocaleDateString();
-let billItems=[],total=0,sno=1;
+let billItems=[], total=0, sno=1;
 
 /* ===== LOAD PRODUCTS ===== */
 fetch(API+"?action=products")
@@ -136,21 +135,19 @@ fetch(API+"?action=products")
  calcAmt();
 });
 
-/* ===== AUTO CALC ===== */
-item.onchange=()=>{price.value=item.options[item.selectedIndex].dataset.price;calcAmt();}
-qty.oninput=calcAmt;
-price.oninput=calcAmt;
-
+/* ===== CALC ===== */
 function calcAmt(){
  amt.innerText=(qty.value*price.value).toFixed(2);
 }
+qty.oninput=calcAmt;
+price.oninput=calcAmt;
+item.onchange=()=>{price.value=item.options[item.selectedIndex].dataset.price;calcAmt();}
 
-/* ===== ADD ITEM ===== */
 function addItem(){
- let q=Number(qty.value),p=Number(price.value);
- if(q<=0||p<=0){alert("Invalid qty/price");return;}
- let a=q*p;
+ let q=Number(qty.value), p=Number(price.value);
+ if(q<=0||p<=0){alert("Invalid");return;}
 
+ let a=q*p;
  billItems.push({code:item.value,qty:q});
  total+=a;
 
@@ -158,84 +155,37 @@ function addItem(){
  r.insertCell(0).innerText=sno++;
  r.insertCell(1).innerText=item.options[item.selectedIndex].text;
  r.insertCell(2).innerText=q;
- r.insertCell(3).innerText=p.toFixed(2);
- r.insertCell(4).innerText=a.toFixed(2);
+ r.insertCell(3).innerText=p;
+ r.insertCell(4).innerText=a;
 
- calc();
+ calcTotal();
 }
 
-/* ===== TOTAL ===== */
-function calc(){
- let g=total*gstp.value/100;
+function calcTotal(){
+ let gstAmt=total*0.18;
  totalEl.innerText=total.toFixed(2);
- gst.innerText=g.toFixed(2);
- grand.innerText=(total+g).toFixed(2);
- words.innerText=numWords(Math.round(total+g));
+ gst.innerText=gstAmt.toFixed(2);
+ grand.innerText=(total+gstAmt).toFixed(2);
+ words.innerText=toWords(Math.round(total+gstAmt));
 }
 
-/* ===== NUMBER TO WORDS ===== */
-function numWords(n){
- const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten",
- "Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
+function toWords(n){
+ const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
  const b=["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
  if(n<20)return a[n]+" Rupees Only";
  if(n<100)return b[Math.floor(n/10)]+" "+a[n%10]+" Rupees Only";
- if(n<1000)return a[Math.floor(n/100)]+" Hundred "+numWords(n%100);
- return numWords(Math.floor(n/1000))+" Thousand "+numWords(n%1000);
+ if(n<1000)return a[Math.floor(n/100)]+" Hundred "+toWords(n%100);
+ return toWords(Math.floor(n/1000))+" Thousand "+toWords(n%1000);
 }
 
-/* ===== SAVE BILL ===== */
+/* ===== SAVE BILL (CRITICAL FIX) ===== */
 function saveBill(){
 
- if(cname.value.trim()==""||mobile.value.trim().length<10){
-  alert("Customer name and valid mobile required");
-  return;
+ if(cname.value=="" || mobile.value.length<10){
+  alert("Customer details required"); return;
+ }
+ if(billItems.length===0){
+  alert("Add items first"); return;
  }
 
- // set print text
- pcname.innerText=cname.value;
- pmobile.innerText=mobile.value;
-
- fetch(
-  API+"?action=sell"+
-  "&items="+encodeURIComponent(JSON.stringify(billItems))+
-  "&cname="+encodeURIComponent(cname.value)+
-  "&mobile="+encodeURIComponent(mobile.value)
- )
- .then(r=>r.text())
- .then(billNo=>{
-  alert("Bill Generated\nBill No: "+billNo);
- });
-}
-
-/* ===== WHATSAPP ===== */
-function sendWhatsApp(){
-
- let txt="";
- billTable.querySelectorAll("tr").forEach((r,i)=>{
-  if(i>0){
-   let c=r.cells;
-   txt+=`${c[1].innerText} x${c[2].innerText} = ₹${c[4].innerText}\n`;
-  }
- });
-
- let msg=
-`SVLN SOLUTIONS
-Customer: ${cname.value}
-Mobile: ${mobile.value}
-
-${txt}
-Total: ₹${grand.innerText}
-
-${words.innerText}
-
-Thank you 🙏`;
-
- window.open("https://wa.me/91"+mobile.value+"?text="+encodeURIComponent(msg));
-}
-
-const totalEl=document.getElementById("total");
-</script>
-
-</body>
-</html>
+ pcname.inne
