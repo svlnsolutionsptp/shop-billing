@@ -6,12 +6,10 @@
 
 <style>
 body{
-  margin:0;
-  padding:0;
   font-family:Arial;
   background:#f2f2f2;
+  margin:0;
 }
-
 .header{
   background:#1f4fd8;
   color:#fff;
@@ -19,7 +17,6 @@ body{
   text-align:center;
   font-size:20px;
 }
-
 .box{
   width:420px;
   margin:40px auto;
@@ -28,13 +25,11 @@ body{
   border-radius:10px;
   box-shadow:0 5px 20px rgba(0,0,0,0.2);
 }
-
 .box h3{
   text-align:center;
   color:#1f4fd8;
   margin-top:0;
 }
-
 input{
   width:100%;
   padding:10px;
@@ -43,7 +38,6 @@ input{
   border:1px solid #ccc;
   border-radius:6px;
 }
-
 button{
   width:100%;
   padding:12px;
@@ -54,9 +48,6 @@ button{
   font-size:16px;
   border-radius:6px;
   cursor:pointer;
-}
-button:hover{
-  background:#163bb5;
 }
 </style>
 </head>
@@ -82,8 +73,8 @@ button:hover{
 </div>
 
 <script>
-/* 🔴 REPLACE WITH YOUR APPS SCRIPT URL */
-const API = "https://script.google.com/macros/s/AKfycbwiIpYBqBDHshdQUJghoMIy5Zo3tozNAwXq9jNG8F1iccJaxVen247CSEW2pc9bOU0U3Q/exec";
+/* 🔴 PASTE NEW WEB APP URL */
+const API = "https://script.google.com/macros/s/AKfycbxH6belgKLfLt8MXA87mLvMHnxf85zFyOHsNLo6Ulr5n0bs-_MUhfuMw9AnPqA7RuQLuA/exec";
 
 function savePurchase(){
 
@@ -110,13 +101,12 @@ function savePurchase(){
   .then(r => r.text())
   .then(res => {
     alert(res);
-    // clear form
     code.value="";
     iname.value="";
     qty.value="";
     cost.value="";
   })
-  .catch(() => {
+  .catch(()=>{
     alert("Purchase save failed");
   });
 }
@@ -124,4 +114,3 @@ function savePurchase(){
 
 </body>
 </html>
-
