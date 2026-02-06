@@ -1,52 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Delete Bill - SVLN SOLUTIONS</title>
-
+<title>Delete Bill</title>
 <style>
 body{font-family:Arial;background:#f2f2f2;}
-.box{
-  width:400px;margin:80px auto;background:#fff;
-  padding:20px;border-radius:8px;text-align:center;
-}
-input,button{
-  width:100%;padding:10px;margin:10px 0;
-}
+.box{width:350px;margin:80px auto;background:#fff;padding:20px;border-radius:10px;text-align:center;}
+input,button{width:100%;padding:10px;margin:10px 0;}
 button{background:#c62828;color:#fff;border:none;}
 </style>
 </head>
-
 <body>
 
 <div class="box">
 <h2>Delete Bill</h2>
-
-<input id="billno" placeholder="Enter Bill Number">
-<button onclick="deleteBill()">DELETE BILL</button>
+<input id="billno" placeholder="Bill Number">
+<button onclick="del()">Delete</button>
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbx17UA-wfZTPnai9N5EjiAy2M_0wWkcovrC1QyDZWEAw3l3Bk3IHbXWxpzMW7WrAbwGBQ/exec";
-
-function deleteBill(){
-
-  if(billno.value.trim()==""){
-    alert("Enter bill number");
-    return;
-  }
-
-  if(!confirm("Are you sure? This will restore stock.")){
-    return;
-  }
-
-  fetch(API+"?action=deleteBill&billno="+encodeURIComponent(billno.value))
-  .then(r=>r.text())
-  .then(res=>{
-    alert(res);
-  });
+const API="PASTE_API_URL_HERE";
+function del(){
+ if(confirm("Restore stock and delete bill?"))
+  fetch(`${API}?action=deleteBill&billno=${billno.value}`)
+   .then(r=>r.text()).then(t=>alert(t));
 }
 </script>
 
 </body>
 </html>
-
