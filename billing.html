@@ -154,15 +154,42 @@ function calc(){
  grand.innerText=(total+g).toFixed(2);
 }
 
+<script>
 function saveBill(){
- fetch(`${API}?action=sell&items=${encodeURIComponent(JSON.stringify(billItems))}&cname=${cname.value}&mobile=${mobile.value}`)
- .then(r=>r.text())
- .then(res=>alert("Bill Saved Successfully"));
+
+  if(billItems.length === 0){
+    alert("Please add items first");
+    return;
+  }
+
+  if(cname.value.trim() === ""){
+    alert("Enter customer name");
+    return;
+  }
+
+  let url = API +
+    "?action=sell" +
+    "&items=" + encodeURIComponent(JSON.stringify(billItems)) +
+    "&cname=" + encodeURIComponent(cname.value) +
+    "&mobile=" + encodeURIComponent(mobile.value);
+
+  fetch(url)
+    .then(res => res.text())
+    .then(txt => {
+      alert("Bill Generated Successfully\nBill No: " + txt);
+      location.reload(); // reset bill
+    })
+    .catch(err => {
+      alert("Error generating bill");
+      console.error(err);
+    });
 }
+</script>
 
 const totalCell=document.getElementById("total");
 </script>
 
 </body>
 </html>
+
 
