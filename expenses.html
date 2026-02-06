@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Expenses - SVLN SOLUTIONS</title>
+
+<style>
+body{font-family:Arial;background:#f2f2f2;}
+.box{
+  width:420px;margin:60px auto;background:#fff;
+  padding:20px;border-radius:10px;
+}
+h2{text-align:center;color:#0a4da3;}
+input,select,button{
+  width:100%;padding:10px;margin:8px 0;
+}
+button{
+  background:#0a4da3;color:#fff;border:none;
+  font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+<h2>💸 Add Expense</h2>
+
+<input type="date" id="date">
+<input id="name" placeholder="Expense Name (Rent, EB Bill)">
+<input id="amount" type="number" placeholder="Amount">
+
+<select id="category">
+  <option value="Fixed">Fixed</option>
+  <option value="Utility">Utility</option>
+  <option value="Salary">Salary</option>
+  <option value="Maintenance">Maintenance</option>
+  <option value="Other">Other</option>
+</select>
+
+<input id="remarks" placeholder="Remarks (optional)">
+
+<button onclick="saveExpense()">Save Expense</button>
+</div>
+
+<script>
+const API="PASTE_API_URL_HERE";
+
+function saveExpense(){
+
+  if(name.value=="" || amount.value==""){
+    alert("Expense name and amount required");
+    return;
+  }
+
+  fetch(`${API}?action=expense
+    &name=${encodeURIComponent(name.value)}
+    &amount=${amount.value}
+    &category=${category.value}
+    &remarks=${encodeURIComponent(remarks.value)}
+    &date=${date.value}`)
+  .then(r=>r.text())
+  .then(t=>{
+    if(t=="EXPENSE_ADDED"){
+      alert("Expense saved");
+      name.value=amount.value=remarks.value="";
+    }else{
+      alert(t);
+    }
+  });
+}
+</script>
+
+</body>
+</html>
