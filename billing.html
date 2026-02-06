@@ -1,45 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>SVLN SOLUTIONS - Billing</title>
-
+<title>SVLN Billing</title>
 <style>
 body{font-family:Arial;background:#f4f6fb}
-.container{
-  width:800px;margin:auto;background:#fff;
-  padding:20px;box-shadow:0 5px 20px rgba(0,0,0,.2)
-}
-h2{text-align:center;margin:4px}
-.shop{text-align:center;font-size:14px}
-input,select{padding:6px;margin:4px}
-button{padding:8px 14px;background:#1f4fd8;color:#fff;border:none}
-button:active{transform:scale(.95);opacity:.8}
-table{width:100%;border-collapse:collapse;margin-top:10px}
+.container{width:800px;margin:auto;background:#fff;padding:20px}
+table{width:100%;border-collapse:collapse}
 th,td{border:1px solid #ccc;padding:6px;text-align:center}
 th{background:#1f4fd8;color:#fff}
-.total{text-align:right;font-size:16px;margin-top:10px}
-.no-print{margin-top:10px;text-align:center}
+button{padding:8px 14px;background:#1f4fd8;color:#fff;border:none}
+button:active{transform:scale(.95);opacity:.8}
 @media print{.no-print{display:none}}
 </style>
 </head>
 
 <body>
-
 <div class="container">
 
-<h2>SVLN SOLUTIONS</h2>
-<div class="shop">
-5-33, Gold Market Street, Pithapuram – 533450<br>
-📞 9533330347, 9494488885
-</div>
-<hr>
+<h2 align="center">SVLN SOLUTIONS</h2>
 
-<b>Customer</b><br>
 Mobile:
 <input id="mobile" onblur="fetchCustomer()">
 Name:
-<input id="cname"><br>
+<input id="cname">
 
 <hr>
 
@@ -50,40 +33,28 @@ GST% <input id="gst" value="18" style="width:60px">
 <button onclick="addItem()">Add</button>
 
 <table id="bill">
-<tr>
-<th>#</th><th>Item</th><th>Qty</th>
-<th>Rate</th><th>GST%</th><th>Total</th>
-</tr>
+<tr><th>#</th><th>Item</th><th>Qty</th><th>Rate</th><th>GST%</th><th>Total</th></tr>
 </table>
 
-<div class="total">
-<b>Grand Total ₹ <span id="grand">0</span></b>
-</div>
+<h3 align="right">Grand Total ₹ <span id="grand">0</span></h3>
 
 <div class="no-print">
 <button onclick="saveBill()">Generate Bill</button>
 <button onclick="window.print()">Print</button>
-<button onclick="sendWA()">WhatsApp</button>
 </div>
-
-<p style="text-align:center">🙏 Thank you, visit again 🙏</p>
 
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbyJzH7GAh-H4XYkMNPtAygcGYSXUjGnlAAi-GPKVfIoHuDfO3kAVhEv0oX95N4hGqImGQ/exec";
+const API="https://script.google.com/macros/s/AKfycbyzDdO8_WNehVom7G8BIoGrbOw5HeeEFOi9Zp8BamFyi-U6qMvYDS8h4H1p6kg_UUYSHw/exec";
 
 let items=[], sno=1, grand=0;
 
 /* LOAD PRODUCTS */
-fetch(API+"?action=products")
-.then(r=>r.json())
-.then(d=>{
+fetch(API+"?action=products").then(r=>r.json()).then(d=>{
   d.forEach(p=>{
     let o=document.createElement("option");
-    o.value=p[0];
-    o.text=p[1];
-    o.dataset.price=p[3];
+    o.value=p[0]; o.text=p[1]; o.dataset.price=p[3];
     item.appendChild(o);
   });
   price.value=item.options[0].dataset.price;
@@ -100,41 +71,45 @@ function fetchCustomer(){
 
 /* ADD ITEM */
 function addItem(){
-  let q=+qty.value, p=+price.value, g=+gst.value;
-  let total=(q*p)+(q*p*g/100);
-  grand+=total;
-
+  let q=+qty.value,p=+price.value,g=+gst.value;
+  let t=(q*p)+(q*p*g/100);
+  grand+=t;
   items.push({code:item.value,qty:q,price:p,gst:g});
-
   let r=bill.insertRow();
   r.insertCell(0).innerText=sno++;
   r.insertCell(1).innerText=item.options[item.selectedIndex].text;
   r.insertCell(2).innerText=q;
   r.insertCell(3).innerText=p;
   r.insertCell(4).innerText=g;
-  r.insertCell(5).innerText=total.toFixed(2);
-
-  document.getElementById("grand").innerText=grand.toFixed(2);
+  r.insertCell(5).innerText=t.toFixed(2);
+  grand.innerText=grand.toFixed(2);
 }
 
-/* SAVE BILL */
+/* SAVE BILL – VALIDATION */
 function saveBill(){
+  if(mobile.value==="" || cname.value===""){
+    alert("Customer Name & Mobile are required");
+    return;
+  }
+  if(items.length===0){
+    alert("Add at least one item");
+    return;
+  }
+
   fetch(API+"?action=sell"+
     "&items="+encodeURIComponent(JSON.stringify(items))+
     "&cname="+encodeURIComponent(cname.value)+
     "&mobile="+encodeURIComponent(mobile.value)
   )
   .then(r=>r.text())
-  .then(b=>{
-    alert("Bill Generated : "+b);
-    setTimeout(()=>window.print(),500);
+  .then(res=>{
+    if(res==="ERROR"){
+      alert("Missing customer details");
+    }else{
+      alert("Bill Generated : "+res);
+      setTimeout(()=>window.print(),500);
+    }
   });
-}
-
-/* WHATSAPP */
-function sendWA(){
-  let msg=`SVLN SOLUTIONS\nAmount ₹${grand}\nThank you, visit again`;
-  window.open("https://wa.me/91"+mobile.value+"?text="+encodeURIComponent(msg));
 }
 </script>
 
