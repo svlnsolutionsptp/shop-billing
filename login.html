@@ -5,7 +5,7 @@
 <p id="m"></p>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbw-6PJdslQrxeSnNM-3GJiiQ9m9yOhgfeXT-DMYMZzZmqcI28Ln2Vt-tXkZHADc7lnGrg/exec";
+const API="https://script.google.com/macros/s/AKfycbyYdJ3ptk2q7el1PRKxd5wjOiL51UZUeurSOgBqz57MiT7_sHPt7jLZOfe83omma6MvMg/exec";
 function go(){
  fetch(`${API}?action=login&user=${u.value}&pass=${p.value}`)
  .then(r=>r.text()).then(t=>{
@@ -14,4 +14,5 @@ function go(){
  });
 }
 </script>
+
 
