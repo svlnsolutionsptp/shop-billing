@@ -179,12 +179,30 @@ function saveBill(){
  .then(t=>alert("Bill Generated Successfully\n"+t));
 }
 
-/* ================= WHATSAPP ================= */
+/* ================= WHATSAPP WITH ITEMS ================= */
 function sendWhatsApp(){
+
  if(mobile.value.trim().length<10){
    alert("Enter valid mobile number");
    return;
  }
+
+ if(billItems.length==0){
+   alert("No items in bill");
+   return;
+ }
+
+ let itemText="";
+ let rows=billTable.rows;
+
+ for(let i=1;i<rows.length;i++){
+   let c=rows[i].cells;
+   itemText += `${i}. ${c[1].innerText}
+Qty: ${c[2].innerText}
+Price: ₹${c[3].innerText}
+Amount: ₹${c[4].innerText}\n\n`;
+ }
+
  let msg=
 `SVLN SOLUTIONS
 5-33, Gold Market Street, Pithapuram
@@ -193,16 +211,22 @@ function sendWhatsApp(){
 Bill Date: ${bdate.innerText}
 Customer: ${cname.value}
 
-Total Amount: ₹${grand.innerText}
+ITEM DETAILS:
+${itemText}
+--------------------
+Total: ₹${total.innerText}
+GST: ₹${gst.innerText}
+Grand Total: ₹${grand.innerText}
+
 Amount in Words:
 ${words.innerText}
 
-Thank you for shopping with us 🙏
+🙏 Thank you for shopping with us
 Visit Again`;
 
  window.open(
-   "https://wa.me/91"+mobile.value+"?text="+encodeURIComponent(msg),
-   "_blank"
+  "https://wa.me/91"+mobile.value+"?text="+encodeURIComponent(msg),
+  "_blank"
  );
 }
 
