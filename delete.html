@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Delete Bill - SVLN SOLUTIONS</title>
+
+<style>
+body{font-family:Arial;background:#f2f2f2;}
+.box{
+  width:400px;margin:80px auto;background:#fff;
+  padding:20px;border-radius:8px;text-align:center;
+}
+input,button{
+  width:100%;padding:10px;margin:10px 0;
+}
+button{background:#c62828;color:#fff;border:none;}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+<h2>Delete Bill</h2>
+
+<input id="billno" placeholder="Enter Bill Number">
+<button onclick="deleteBill()">DELETE BILL</button>
+</div>
+
+<script>
+const API="PASTE_YOUR_NEW_APPS_SCRIPT_URL";
+
+function deleteBill(){
+
+  if(billno.value.trim()==""){
+    alert("Enter bill number");
+    return;
+  }
+
+  if(!confirm("Are you sure? This will restore stock.")){
+    return;
+  }
+
+  fetch(API+"?action=deleteBill&billno="+encodeURIComponent(billno.value))
+  .then(r=>r.text())
+  .then(res=>{
+    alert(res);
+  });
+}
+</script>
+
+</body>
+</html>
