@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Edit Bill - SVLN SOLUTIONS</title>
+<style>
+body{font-family:Arial;background:#f2f2f2;}
+.box{
+  width:400px;margin:100px auto;background:#fff;
+  padding:20px;border-radius:8px;text-align:center;
+}
+input,button{
+  width:100%;padding:10px;margin:10px 0;
+}
+button{background:#f57c00;color:#fff;border:none;}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+<h2>Edit Bill</h2>
+
+<input id="billno" placeholder="Enter Old Bill Number">
+<button onclick="editBill()">EDIT BILL</button>
+
+<p style="font-size:13px;color:#555;">
+Note: Old bill will be deleted and stock restored.<br>
+Then you will re-create bill.
+</p>
+</div>
+
+<script>
+const API="PASTE_YOUR_LATEST_APPS_SCRIPT_URL";
+
+function editBill(){
+
+  if(billno.value.trim()==""){
+    alert("Enter bill number");
+    return;
+  }
+
+  if(!confirm("Old bill will be deleted. Continue?")){
+    return;
+  }
+
+  fetch(API+"?action=deleteBill&billno="+encodeURIComponent(billno.value))
+  .then(r=>r.text())
+  .then(res=>{
+    if(res=="BILL_DELETED"){
+      alert("Old bill deleted. Create new bill now.");
+      location.href="billing.html";
+    }else{
+      alert("Bill not found");
+    }
+  });
+}
+</script>
+
+</body>
+</html>
