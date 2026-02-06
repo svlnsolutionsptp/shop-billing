@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SVLN SOLUTIONS - Purchase</title>
+
+<style>
+body{font-family:Arial;background:#f2f2f2;}
+.box{
+  width:500px;
+  margin:50px auto;
+  background:#fff;
+  padding:20px;
+  border-radius:8px;
+}
+h2{text-align:center;color:#0a4da3;}
+input,button{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+}
+button{
+  background:#0a4da3;
+  color:#fff;
+  border:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+<h2>Purchase Entry</h2>
+
+<input id="supplier" placeholder="Supplier Name">
+<input id="code" placeholder="Item Code">
+<input id="name" placeholder="Item Name">
+<input id="qty" type="number" placeholder="Quantity">
+<input id="cost" type="number" placeholder="Cost Price">
+
+<button onclick="savePurchase()">Save Purchase</button>
+
+<p id="msg"></p>
+</div>
+
+<script>
+const API="PASTE_YOUR_NEW_APPS_SCRIPT_URL";
+
+function savePurchase(){
+
+  if(!supplier.value || !code.value || !name.value || !qty.value || !cost.value){
+    alert("All fields required");
+    return;
+  }
+
+  fetch(`${API}?action=purchase
+  &supplier=${encodeURIComponent(supplier.value)}
+  &code=${encodeURIComponent(code.value)}
+  &name=${encodeURIComponent(name.value)}
+  &qty=${qty.value}
+  &cost=${cost.value}`)
+  .then(r=>r.text())
+  .then(res=>{
+    msg.innerText = res;
+    alert("Purchase Saved Successfully");
+    location.reload();
+  });
+}
+</script>
+
+</body>
+</html>
