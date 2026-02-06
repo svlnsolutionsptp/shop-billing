@@ -13,7 +13,6 @@ body{
   background:linear-gradient(135deg,#0a4da3,#00b4db);
   font-family:Arial;
 }
-
 .box{
   width:360px;
   background:#fff;
@@ -22,29 +21,20 @@ body{
   text-align:center;
   box-shadow:0 10px 25px rgba(0,0,0,0.3);
 }
-
-h1{color:#0a4da3;margin-bottom:5px;}
-h3{color:#555;margin-bottom:20px;}
-
+h1{color:#0a4da3;}
 input{
   width:100%;
   padding:10px;
   margin:10px 0;
-  border-radius:5px;
-  border:1px solid #ccc;
 }
-
 button{
   width:100%;
   padding:10px;
   background:#0a4da3;
   color:#fff;
   border:none;
-  border-radius:5px;
-  font-size:16px;
 }
-
-#error{color:red;margin-top:10px;}
+#error{color:red;}
 </style>
 </head>
 
@@ -52,7 +42,7 @@ button{
 
 <div class="box">
 <h1>SVLN SOLUTIONS</h1>
-<h3>Welcome – Login</h3>
+<p>Welcome – Login</p>
 
 <input id="u" placeholder="Username">
 <input id="p" type="password" placeholder="Password">
@@ -62,18 +52,18 @@ button{
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbwvm0tzfhFChUVXsA1atsryH7N4ruFITILWIQ8aWNmEwjq-VBvieBH0C5LeDDF1Iyv94A/exec";
+const API="https://script.google.com/macros/s/AKfycbyXTPRGR84GaAcEWxGWg7mzyBh-ywnoqbyWP1jkkYdu7xNzTTUXquloh8Q2YOEeazfc0g/exec";
 
 function login(){
-  fetch(`${API}?action=login&user=${u.value}&pass=${p.value}`)
-  .then(r=>r.text())
-  .then(res=>{
-    if(res=="SUCCESS"){
-      location.href="billing.html";
-    }else{
-      error.innerText="Invalid Login";
-    }
-  });
+ fetch(`${API}?action=login&user=${u.value}&pass=${p.value}`)
+ .then(r=>r.text())
+ .then(res=>{
+   if(res=="SUCCESS"){
+     location.href="billing.html";
+   }else{
+     error.innerText="Invalid Login";
+   }
+ });
 }
 </script>
 
