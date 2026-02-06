@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head><title>Profit</title></head>
+<body>
+<h3>Profit Summary</h3>
+<div id="p" style="text-align:center;font-size:22px"></div>
+<script>
+const API="PASTE_WEB_APP_URL";
+fetch(API+"?action=profitReport").then(r=>r.json()).then(d=>{
+p.innerHTML=`Total Sales : ₹${d[0].sales}<br>Total Profit : ₹${d[0].profit}`;
+});
+</script>
+</body>
+</html>
