@@ -1,29 +1,77 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SVLN Dashboard</title>
+<title>SVLN SOLUTIONS – Dashboard</title>
+
 <style>
-body{font-family:Arial;background:#eef2ff}
-h2{text-align:center;color:#1f4fd8}
-.grid{display:flex;flex-wrap:wrap;justify-content:center}
-.card{
-  background:#fff;width:220px;margin:15px;padding:25px;
-  border-radius:12px;text-align:center;
-  box-shadow:0 6px 18px rgba(0,0,0,.15);
-  cursor:pointer;transition:.2s
+body{
+  font-family:Arial;
+  background:#eef2ff;
+  margin:0;
 }
-.card:hover{transform:scale(1.05)}
+h2{
+  text-align:center;
+  color:#1f4fd8;
+  margin-top:20px;
+}
+.section-title{
+  text-align:center;
+  margin-top:30px;
+  font-size:18px;
+  color:#333;
+}
+.grid{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.card{
+  background:#fff;
+  width:220px;
+  margin:15px;
+  padding:25px;
+  border-radius:14px;
+  text-align:center;
+  box-shadow:0 6px 18px rgba(0,0,0,.15);
+  cursor:pointer;
+  transition:.2s;
+  font-size:16px;
+}
+.card:hover{
+  transform:scale(1.05);
+}
+.work{border-top:6px solid #1f4fd8;}
+.report{border-top:6px solid #28a745;}
 </style>
+
 </head>
 <body>
-<h2>SVLN REPORT DASHBOARD</h2>
+
+<h2>SVLN SOLUTIONS – DASHBOARD</h2>
+
+<!-- WORK SECTION -->
+<div class="section-title">🧾 DAILY OPERATIONS</div>
 <div class="grid">
-  <div class="card" onclick="go('stock.html')">📦 Stock Report</div>
-  <div class="card" onclick="go('sales.html')">🧾 Sales Report</div>
-  <div class="card" onclick="go('purchaseReport.html')">📥 Purchase Report</div>
-  <div class="card" onclick="go('expenseReport.html')">💸 Expense Report</div>
-  <div class="card" onclick="go('profit.html')">📊 Profit Summary</div>
+  <div class="card work" onclick="go('billing.html')">🧾 Billing</div>
+  <div class="card work" onclick="go('purchase.html')">📦 Purchase</div>
+  <div class="card work" onclick="go('expenses.html')">💸 Expenses</div>
 </div>
-<script>function go(p){location.href=p}</script>
+
+<!-- REPORT SECTION -->
+<div class="section-title">📊 REPORTS (READ ONLY)</div>
+<div class="grid">
+  <div class="card report" onclick="go('stock.html')">📦 Stock Report</div>
+  <div class="card report" onclick="go('sales.html')">🧾 Sales Report</div>
+  <div class="card report" onclick="go('purchaseReport.html')">📥 Purchase Report</div>
+  <div class="card report" onclick="go('expenseReport.html')">💸 Expense Report</div>
+  <div class="card report" onclick="go('profit.html')">📊 Profit Report</div>
+</div>
+
+<script>
+function go(page){
+  location.href = page;
+}
+</script>
+
 </body>
 </html>
