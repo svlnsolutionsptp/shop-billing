@@ -19,7 +19,7 @@ Qty <input id="qty">
 <button onclick="window.print()">Print</button>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbw-6PJdslQrxeSnNM-3GJiiQ9m9yOhgfeXT-DMYMZzZmqcI28Ln2Vt-tXkZHADc7lnGrg/exec";
+const API="https://script.google.com/macros/s/AKfycbzHxJWUeaa--DvnkJQwtvlV8ci8n2PRm_BxwPjsXN_D9kjEEEj6GoSVrrUUMSyAgodoow/exec";
 let items=[],total=0;
 
 function add(){
@@ -34,10 +34,12 @@ function add(){
 }
 
 function save(){
- fetch(API,{
-  method:"POST",
-  body:JSON.stringify({items,cname:cname.value,mobile:mobile.value})
- }).then(r=>r.text()).then(alert);
+  fetch(`${API}?action=sell&items=${encodeURIComponent(JSON.stringify(items))}&cname=${cname.value}&mobile=${mobile.value}`)
+  .then(r=>r.text())
+  .then(res => {
+    alert("Bill Generated: " + res);
+  });
 }
-</script>
 
+
+</script>
