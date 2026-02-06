@@ -1,25 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Expenses - SVLN SOLUTIONS</title>
-
+<title>Expenses</title>
 <style>
 body{font-family:Arial;background:#f2f2f2;}
-.box{
-  width:420px;margin:60px auto;background:#fff;
-  padding:20px;border-radius:10px;
-}
-h2{text-align:center;color:#0a4da3;}
-input,select,button{
-  width:100%;padding:10px;margin:8px 0;
-}
-button{
-  background:#0a4da3;color:#fff;border:none;
-  font-size:16px;
-}
+.box{width:420px;margin:60px auto;background:#fff;padding:20px;border-radius:10px;}
+input,select,button{width:100%;padding:10px;margin:8px 0;}
+button{background:#0a4da3;color:#fff;border:none;font-size:16px;}
 </style>
 </head>
-
 <body>
 
 <div class="box">
@@ -30,26 +19,23 @@ button{
 <input id="amount" type="number" placeholder="Amount">
 
 <select id="category">
-  <option value="Fixed">Fixed</option>
-  <option value="Utility">Utility</option>
-  <option value="Salary">Salary</option>
-  <option value="Maintenance">Maintenance</option>
-  <option value="Other">Other</option>
+  <option>Fixed</option>
+  <option>Utility</option>
+  <option>Salary</option>
+  <option>Maintenance</option>
+  <option>Other</option>
 </select>
 
 <input id="remarks" placeholder="Remarks (optional)">
-
 <button onclick="saveExpense()">Save Expense</button>
 </div>
 
 <script>
-const API="PASTE_API_URL_HERE";
+const API="https://script.google.com/macros/s/AKfycbyD8AUjyGccSxZ5RzPVi_Xxb2fDg8bl1jTAJdS2hYvGRD4wWiadMgSCfau73uFTj-4B/exec";
 
 function saveExpense(){
-
   if(name.value=="" || amount.value==""){
-    alert("Expense name and amount required");
-    return;
+    alert("Name and amount required"); return;
   }
 
   fetch(`${API}?action=expense
@@ -59,14 +45,7 @@ function saveExpense(){
     &remarks=${encodeURIComponent(remarks.value)}
     &date=${date.value}`)
   .then(r=>r.text())
-  .then(t=>{
-    if(t=="EXPENSE_ADDED"){
-      alert("Expense saved");
-      name.value=amount.value=remarks.value="";
-    }else{
-      alert(t);
-    }
-  });
+  .then(t=>alert(t));
 }
 </script>
 
