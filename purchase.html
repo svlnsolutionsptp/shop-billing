@@ -4,37 +4,16 @@
 <title>SVLN SOLUTIONS - Purchase</title>
 
 <style>
-body{
-  font-family:Arial;
-  background:#f2f2f2;
-}
+body{font-family:Arial;background:#f2f2f2;}
 .box{
-  width:450px;
-  margin:60px auto;
-  background:#fff;
-  padding:20px;
-  border-radius:8px;
-  box-shadow:0 0 10px rgba(0,0,0,.2);
+  width:450px;margin:60px auto;background:#fff;
+  padding:20px;border-radius:8px;
 }
-h2{
-  text-align:center;
-  color:#0a4da3;
-}
+h2{text-align:center;color:#0a4da3;}
 input,button{
-  width:100%;
-  padding:10px;
-  margin:8px 0;
-  font-size:15px;
+  width:100%;padding:10px;margin:8px 0;font-size:15px;
 }
-button{
-  background:#0a4da3;
-  color:#fff;
-  border:none;
-  cursor:pointer;
-}
-button:hover{
-  background:#083b7a;
-}
+button{background:#0a4da3;color:#fff;border:none;cursor:pointer;}
 </style>
 </head>
 
@@ -43,24 +22,25 @@ button:hover{
 <div class="box">
 <h2>Purchase Entry</h2>
 
-<input type="text" id="supplier" placeholder="Supplier Name">
-<input type="text" id="code" placeholder="Item Code">
-<input type="text" id="name" placeholder="Item Name">
-<input type="number" id="qty" placeholder="Quantity">
-<input type="number" id="cost" placeholder="Cost Price">
+<input id="supplier" placeholder="Supplier Name">
+<input id="code" placeholder="Item Code">
+<input id="name" placeholder="Item Name">
+<input id="qty" type="number" placeholder="Quantity">
+<input id="cost" type="number" placeholder="Cost Price">
 
-<button onclick="savePurchase()">Save Purchase</button>
+<button id="saveBtn">Save Purchase</button>
 </div>
 
 <script>
-/* =========================
-   CONFIG
-========================= */
+/* ========= CONFIG ========= */
 const API = "https://script.google.com/macros/s/AKfycbx17UA-wfZTPnai9N5EjiAy2M_0wWkcovrC1QyDZWEAw3l3Bk3IHbXWxpzMW7WrAbwGBQ/exec";
 
-/* =========================
-   SAVE PURCHASE
-========================= */
+/* ========= TEST BUTTON ========= */
+document.getElementById("saveBtn").addEventListener("click", function () {
+  alert("Button Clicked");   // 👈 THIS MUST SHOW
+  savePurchase();
+});
+
 function savePurchase(){
 
   const s  = document.getElementById("supplier").value.trim();
@@ -69,7 +49,7 @@ function savePurchase(){
   const q  = document.getElementById("qty").value.trim();
   const cp = document.getElementById("cost").value.trim();
 
-  if(s === "" || c === "" || n === "" || q === "" || cp === ""){
+  if(!s || !c || !n || !q || !cp){
     alert("All fields are required");
     return;
   }
@@ -83,14 +63,16 @@ function savePurchase(){
     "&qty=" + encodeURIComponent(q) +
     "&cost=" + encodeURIComponent(cp);
 
+  console.log("Calling URL:", url); // 👈 DEBUG
+
   fetch(url)
     .then(res => res.text())
     .then(txt => {
-      alert("Purchase Saved Successfully");
+      alert("Server Response: " + txt);
       location.reload();
     })
     .catch(err => {
-      alert("Error saving purchase");
+      alert("Fetch error");
       console.error(err);
     });
 }
