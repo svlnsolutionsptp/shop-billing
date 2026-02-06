@@ -5,7 +5,7 @@
 <h3>Profit Summary</h3>
 <div id="p" style="text-align:center;font-size:22px"></div>
 <script>
-const API="PASTE_WEB_APP_URL";
+const API="https://script.google.com/macros/s/AKfycbxrWk3gDJMh-Azjz76z45U8-8PykrEujzWa1S2e_7_-k8sgpu1PiY_i26kWxVv2JQQA5A/exec";
 fetch(API+"?action=profitReport").then(r=>r.json()).then(d=>{
 p.innerHTML=`Total Sales : ₹${d[0].sales}<br>Total Profit : ₹${d[0].profit}`;
 });
