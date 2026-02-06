@@ -1,31 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Purchase</title>
+<meta charset="UTF-8">
+<title>SVLN SOLUTIONS - Purchase</title>
+
 <style>
-body{font-family:Arial;background:#f4f6fb}
-input,button{display:block;margin:8px;padding:8px}
-button{background:#1f4fd8;color:#fff;border:none}
+body{
+  font-family:Arial;
+  background:#f4f6fb;
+}
+.box{
+  width:420px;
+  margin:60px auto;
+  background:#fff;
+  padding:25px;
+  box-shadow:0 5px 20px rgba(0,0,0,.2);
+}
+h3{text-align:center;color:#1f4fd8}
+input{
+  width:100%;
+  padding:8px;
+  margin:6px 0;
+}
+button{
+  width:100%;
+  padding:10px;
+  background:#1f4fd8;
+  color:#fff;
+  border:none;
+}
 button:active{transform:scale(.95);opacity:.8}
 </style>
 </head>
+
 <body>
 
+<div class="box">
 <h3>Purchase Entry</h3>
 
-<input id="supplier" placeholder="Supplier">
+<input id="supplier" placeholder="Supplier Name">
 <input id="code" placeholder="Item Code">
 <input id="name" placeholder="Item Name">
-<input id="qty" type="number" placeholder="Qty">
+<input id="qty" type="number" placeholder="Quantity">
 <input id="cost" type="number" placeholder="Cost Price">
 <input id="sell" type="number" placeholder="Selling Price">
 
-<button onclick="save()">Save Purchase</button>
+<button onclick="savePurchase()">Save Purchase</button>
+</div>
 
 <script>
 const API="https://script.google.com/macros/s/AKfycbwrbXi8XyrsB5r44iVS1z6hhF36NZgxjdAF2h0RIIM1XsI6BzspNgIhQEUK1c-IWZgD_w/exec";
 
-function save(){
+function savePurchase(){
   fetch(API+"?action=purchase"+
     "&supplier="+supplier.value+
     "&code="+code.value+
@@ -35,7 +61,9 @@ function save(){
     "&sell="+sell.value
   )
   .then(r=>r.text())
-  .then(a=>alert(a));
+  .then(res=>{
+    alert(res);
+  });
 }
 </script>
 
