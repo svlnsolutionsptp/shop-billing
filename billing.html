@@ -143,9 +143,11 @@ function saveBill(){
  "&cname="+encodeURIComponent(cname.value)+"&mobile="+encodeURIComponent(mobile.value))
  .then(r=>r.text()).then(t=>alert("Bill Generated "+t));
 }
+<button onclick="sendWhatsApp()">Send WhatsApp</button>
 
 const totalEl=document.getElementById("total");
 </script>
 </body>
 </html>
+
 
