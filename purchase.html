@@ -4,24 +4,36 @@
 <title>SVLN SOLUTIONS - Purchase</title>
 
 <style>
-body{font-family:Arial;background:#f2f2f2;}
+body{
+  font-family:Arial;
+  background:#f2f2f2;
+}
 .box{
-  width:500px;
-  margin:50px auto;
+  width:450px;
+  margin:60px auto;
   background:#fff;
   padding:20px;
   border-radius:8px;
+  box-shadow:0 0 10px rgba(0,0,0,.2);
 }
-h2{text-align:center;color:#0a4da3;}
+h2{
+  text-align:center;
+  color:#0a4da3;
+}
 input,button{
   width:100%;
   padding:10px;
   margin:8px 0;
+  font-size:15px;
 }
 button{
   background:#0a4da3;
   color:#fff;
   border:none;
+  cursor:pointer;
+}
+button:hover{
+  background:#083b7a;
 }
 </style>
 </head>
@@ -31,37 +43,39 @@ button{
 <div class="box">
 <h2>Purchase Entry</h2>
 
-<input id="supplier" placeholder="Supplier Name">
-<input id="code" placeholder="Item Code">
-<input id="name" placeholder="Item Name">
-<input id="qty" type="number" placeholder="Quantity">
-<input id="cost" type="number" placeholder="Cost Price">
+<input type="text" id="supplier" placeholder="Supplier Name">
+<input type="text" id="code" placeholder="Item Code">
+<input type="text" id="name" placeholder="Item Name">
+<input type="number" id="qty" placeholder="Quantity">
+<input type="number" id="cost" placeholder="Cost Price">
 
 <button onclick="savePurchase()">Save Purchase</button>
-
-<p id="msg"></p>
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbx17UA-wfZTPnai9N5EjiAy2M_0wWkcovrC1QyDZWEAw3l3Bk3IHbXWxpzMW7WrAbwGBQ/exec";
+/* =========================
+   CONFIG
+========================= */
+const API = "https://script.google.com/macros/s/AKfycbx17UA-wfZTPnai9N5EjiAy2M_0wWkcovrC1QyDZWEAw3l3Bk3IHbXWxpzMW7WrAbwGBQ/exec";
 
-<script>
-const API = "PASTE_YOUR_NEW_APPS_SCRIPT_URL";
-
+/* =========================
+   SAVE PURCHASE
+========================= */
 function savePurchase(){
 
-  let s = supplier.value.trim();
-  let c = code.value.trim();
-  let n = name.value.trim();
-  let q = qty.value.trim();
-  let cp = cost.value.trim();
+  const s  = document.getElementById("supplier").value.trim();
+  const c  = document.getElementById("code").value.trim();
+  const n  = document.getElementById("name").value.trim();
+  const q  = document.getElementById("qty").value.trim();
+  const cp = document.getElementById("cost").value.trim();
 
   if(s === "" || c === "" || n === "" || q === "" || cp === ""){
-    alert("All fields required");
+    alert("All fields are required");
     return;
   }
 
-  let url = API +
+  const url =
+    API +
     "?action=purchase" +
     "&supplier=" + encodeURIComponent(s) +
     "&code=" + encodeURIComponent(c) +
@@ -70,8 +84,8 @@ function savePurchase(){
     "&cost=" + encodeURIComponent(cp);
 
   fetch(url)
-    .then(r => r.text())
-    .then(res => {
+    .then(res => res.text())
+    .then(txt => {
       alert("Purchase Saved Successfully");
       location.reload();
     })
@@ -82,9 +96,5 @@ function savePurchase(){
 }
 </script>
 
-</script>
-
 </body>
 </html>
-
-
