@@ -4,13 +4,11 @@
 <title>SVLN SOLUTIONS - GST BILL</title>
 
 <style>
-body { font-family: Arial; background:#f4f6f8; }
+body { font-family: Arial; background:#eaeaea; }
 .bill { width:210mm; margin:auto; background:#fff; padding:20px; }
 
 h1 { text-align:center; color:#0a4da3; margin:5px; }
 .shop { text-align:center; font-size:14px; }
-
-hr { border:1px solid #0a4da3; }
 
 table { width:100%; border-collapse:collapse; margin-top:10px; }
 th { background:#0a4da3; color:#fff; padding:8px; }
@@ -19,11 +17,13 @@ td { border:1px solid #000; padding:6px; text-align:center; }
 .total-box { width:40%; float:right; margin-top:10px; }
 .total-box td { font-weight:bold; }
 
-input { width:100%; box-sizing:border-box; }
+input, select { width:100%; }
+
+.footer { text-align:center; margin-top:30px; font-weight:bold; }
 
 @media print {
-  body { background:#fff; }
-  button { display:none; }
+ button { display:none; }
+ body { background:#fff; }
 }
 </style>
 </head>
@@ -51,19 +51,29 @@ PIN: 533450<br>
 
 <br>
 
-Item Code:
-<input id="code" style="width:120px">
-Qty:
-<input id="qty" style="width:60px">
-Price:
-<input id="price" style="width:80px">
-
-<button onclick="addItem()">Add Item</button>
+<table>
+<tr>
+<th>Item</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Amount</th>
+<th>Action</th>
+</tr>
+<tr>
+<td>
+<select id="item"></select>
+</td>
+<td><input id="qty" type="number" value="1"></td>
+<td><input id="price"></td>
+<td id="amt">0</td>
+<td><button onclick="addItem()">Add</button></td>
+</tr>
+</table>
 
 <table id="items">
 <tr>
 <th>S.No</th>
-<th>Item Code</th>
+<th>Item</th>
 <th>Qty</th>
 <th>Price</th>
 <th>Amount</th>
@@ -71,54 +81,67 @@ Price:
 </table>
 
 <table class="total-box">
+<tr><td>Total</td><td id="total">0</td></tr>
 <tr>
-<td>Total</td>
-<td id="total">0</td>
-</tr>
-<tr>
-<td>
-GST %
-<input id="gstp" value="18" oninput="calc()">
-</td>
+<td>GST % <input id="gstp" value="18" oninput="calc()"></td>
 <td id="gst">0</td>
 </tr>
-<tr>
-<td>Grand Total</td>
-<td id="grand">0</td>
-</tr>
+<tr><td>Grand Total</td><td id="grand">0</td></tr>
 </table>
 
-<br><br style="clear:both">
+<br style="clear:both">
 
 <button onclick="saveBill()">Generate Bill</button>
 <button onclick="window.print()">Print A4</button>
 
+<div class="footer">
+🙏 Thank You – Visit Again 🙏
+</div>
+
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbzHxJWUeaa--DvnkJQwtvlV8ci8n2PRm_BxwPjsXN_D9kjEEEj6GoSVrrUUMSyAgodoow/exec";
+const API="https://script.google.com/macros/s/AKfycbyYdJ3ptk2q7el1PRKxd5wjOiL51UZUeurSOgBqz57MiT7_sHPt7jLZOfe83omma6MvMg/exec";
 
 document.getElementById("bdate").innerText =
   new Date().toLocaleDateString();
 
-let items=[], total=0, sno=1;
+let products=[], billItems=[], total=0, sno=1;
+
+fetch(API+"?action=products")
+.then(r=>r.json())
+.then(data=>{
+  products=data;
+  data.forEach(p=>{
+    let opt=document.createElement("option");
+    opt.value=p[0];
+    opt.text=p[0]+" - "+p[1];
+    opt.dataset.price=p[3];
+    item.appendChild(opt);
+  });
+  price.value=item.options[0].dataset.price;
+});
+
+item.onchange=()=>price.value=item.options[item.selectedIndex].dataset.price;
+qty.oninput=()=>amt.innerText=(qty.value*price.value).toFixed(2);
+price.oninput=()=>amt.innerText=(qty.value*price.value).toFixed(2);
 
 function addItem(){
- let c=code.value;
+ let code=item.value;
+ let name=item.options[item.selectedIndex].text;
  let q=Number(qty.value);
  let p=Number(price.value);
+ let a=q*p;
 
- let amt=q*p;
- total+=amt;
+ billItems.push({code:code, qty:q});
+ total+=a;
 
- items.push({code:c, qty:q});
-
- let r=itemsTable.insertRow();
+ let r=items.insertRow();
  r.insertCell(0).innerText=sno++;
- r.insertCell(1).innerText=c;
+ r.insertCell(1).innerText=name;
  r.insertCell(2).innerText=q;
  r.insertCell(3).innerText=p;
- r.insertCell(4).innerText=amt;
+ r.insertCell(4).innerText=a;
 
  calc();
 }
@@ -132,12 +155,11 @@ function calc(){
 }
 
 function saveBill(){
- fetch(`${API}?action=sell&items=${encodeURIComponent(JSON.stringify(items))}&cname=${cname.value}&mobile=${mobile.value}`)
+ fetch(`${API}?action=sell&items=${encodeURIComponent(JSON.stringify(billItems))}&cname=${cname.value}&mobile=${mobile.value}`)
  .then(r=>r.text())
- .then(res=>alert("Bill Saved: "+res));
+ .then(res=>alert("Bill Saved Successfully"));
 }
 
-const itemsTable=document.getElementById("items");
 const totalCell=document.getElementById("total");
 </script>
 
