@@ -14,24 +14,17 @@ body{
   font-family:Arial;
 }
 
-.login-box{
-  width:350px;
+.box{
+  width:360px;
   background:#fff;
   padding:30px;
   border-radius:10px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.3);
   text-align:center;
+  box-shadow:0 10px 25px rgba(0,0,0,0.3);
 }
 
-.login-box h1{
-  color:#0a4da3;
-  margin-bottom:5px;
-}
-
-.login-box h3{
-  color:#555;
-  margin-bottom:20px;
-}
+h1{color:#0a4da3;margin-bottom:5px;}
+h3{color:#555;margin-bottom:20px;}
 
 input{
   width:100%;
@@ -39,7 +32,6 @@ input{
   margin:10px 0;
   border-radius:5px;
   border:1px solid #ccc;
-  font-size:15px;
 }
 
 button{
@@ -50,60 +42,38 @@ button{
   border:none;
   border-radius:5px;
   font-size:16px;
-  cursor:pointer;
 }
 
-button:hover{
-  background:#083b7a;
-}
-
-.footer{
-  margin-top:15px;
-  font-size:13px;
-  color:#777;
-}
-
-#error{
-  color:red;
-  margin-top:10px;
-}
+#error{color:red;margin-top:10px;}
 </style>
 </head>
 
 <body>
 
-<div class="login-box">
-
+<div class="box">
 <h1>SVLN SOLUTIONS</h1>
-<h3>Welcome – Please Login</h3>
+<h3>Welcome – Login</h3>
 
 <input id="u" placeholder="Username">
 <input id="p" type="password" placeholder="Password">
 
 <button onclick="login()">Login</button>
-
 <div id="error"></div>
-
-<div class="footer">
-© SVLN SOLUTIONS<br>
-Billing & Inventory System
-</div>
-
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbyYdJ3ptk2q7el1PRKxd5wjOiL51UZUeurSOgBqz57MiT7_sHPt7jLZOfe83omma6MvMg/exec";
+const API="https://script.google.com/macros/s/AKfycbwvm0tzfhFChUVXsA1atsryH7N4ruFITILWIQ8aWNmEwjq-VBvieBH0C5LeDDF1Iyv94A/exec";
 
 function login(){
- fetch(`${API}?action=login&user=${u.value}&pass=${p.value}`)
- .then(r=>r.text())
- .then(res=>{
-   if(res=="SUCCESS"){
-     window.location.href="billing.html";
-   }else{
-     error.innerText="Invalid Username or Password";
-   }
- });
+  fetch(`${API}?action=login&user=${u.value}&pass=${p.value}`)
+  .then(r=>r.text())
+  .then(res=>{
+    if(res=="SUCCESS"){
+      location.href="billing.html";
+    }else{
+      error.innerText="Invalid Login";
+    }
+  });
 }
 </script>
 
