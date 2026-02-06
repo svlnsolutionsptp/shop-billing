@@ -1,21 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SVLN SOLUTIONS - Billing</title>
+<title>SVLN SOLUTIONS - BILL</title>
 
 <style>
 body{font-family:Arial;background:#eee;}
 .bill{width:210mm;margin:auto;background:#fff;padding:20px;}
-h1{text-align:center;color:#0a4da3;}
+h1{text-align:center;color:#0a4da3;margin:5px;}
 .shop{text-align:center;font-size:14px;}
+
 table{width:100%;border-collapse:collapse;margin-top:10px;}
 th{background:#0a4da3;color:#fff;padding:6px;}
 td{border:1px solid #000;padding:6px;text-align:center;}
-input,select{width:100%;padding:5px;}
+
+input,select{width:100%;padding:5px;font-size:14px;}
+
 .total{width:40%;float:right;}
-button{padding:8px 12px;margin:5px;}
 .footer{text-align:center;margin-top:30px;font-weight:bold;}
-@media print{button{display:none;}body{background:#fff;}}
+button{padding:8px 14px;margin:5px;}
+
+/* ===== PRINT CONTROL ===== */
+.print-only{display:none;}
+@media print{
+  button,.no-print,input,select{display:none !important;}
+  .print-only{display:inline;}
+  body{background:#fff;}
+}
 </style>
 </head>
 
@@ -33,28 +43,52 @@ PIN: 533450 | 📞 9533330347, 9494488885
 
 <table>
 <tr>
-<td>Date: <b id="bdate"></b></td>
-<td>Customer: <input id="cname"></td>
-<td>Mobile: <input id="mobile"></td>
+<td>
+Date:
+<b id="bdate"></b>
+</td>
+
+<td>
+Customer Name:
+<span class="print-only" id="pcname"></span>
+<input id="cname" class="no-print">
+</td>
+
+<td>
+Mobile:
+<span class="print-only" id="pmobile"></span>
+<input id="mobile" class="no-print">
+</td>
 </tr>
 </table>
 
 <table>
 <tr>
-<th>Item</th><th>Qty</th><th>Price</th><th>Amount</th><th></th>
+<th>Item</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Amount</th>
+<th class="no-print"></th>
 </tr>
+
 <tr>
 <td><select id="item"></select></td>
 <td><input id="qty" type="number" value="1"></td>
 <td><input id="price"></td>
 <td id="amt">0</td>
-<td><button onclick="addItem()">Add</button></td>
+<td class="no-print">
+<button onclick="addItem()">Add</button>
+</td>
 </tr>
 </table>
 
 <table id="billTable">
 <tr>
-<th>S.No</th><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th>
+<th>S.No</th>
+<th>Item</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Amount</th>
 </tr>
 </table>
 
@@ -90,13 +124,13 @@ let billItems=[],total=0,sno=1;
 /* ===== LOAD PRODUCTS ===== */
 fetch(API+"?action=products")
 .then(r=>r.json())
-.then(data=>{
- data.forEach(p=>{
-   let o=document.createElement("option");
-   o.value=p[0];
-   o.text=p[1];               // ONLY ITEM NAME
-   o.dataset.price=p[3];
-   item.appendChild(o);
+.then(d=>{
+ d.forEach(p=>{
+  let o=document.createElement("option");
+  o.value=p[0];
+  o.text=p[1];
+  o.dataset.price=p[3];
+  item.appendChild(o);
  });
  price.value=item.options[0].dataset.price;
  calcAmt();
@@ -117,13 +151,7 @@ function addItem(){
  if(q<=0||p<=0){alert("Invalid qty/price");return;}
  let a=q*p;
 
- billItems.push({
-   name:item.options[item.selectedIndex].text,
-   qty:q,
-   price:p,
-   amount:a
- });
-
+ billItems.push({code:item.value,qty:q});
  total+=a;
 
  let r=billTable.insertRow();
@@ -158,53 +186,52 @@ function numWords(n){
 
 /* ===== SAVE BILL ===== */
 function saveBill(){
+
  if(cname.value.trim()==""||mobile.value.trim().length<10){
-   alert("Customer details required");return;
+  alert("Customer name and valid mobile required");
+  return;
  }
- alert("Bill Saved Successfully");
+
+ // set print text
+ pcname.innerText=cname.value;
+ pmobile.innerText=mobile.value;
+
+ fetch(
+  API+"?action=sell"+
+  "&items="+encodeURIComponent(JSON.stringify(billItems))+
+  "&cname="+encodeURIComponent(cname.value)+
+  "&mobile="+encodeURIComponent(mobile.value)
+ )
+ .then(r=>r.text())
+ .then(billNo=>{
+  alert("Bill Generated\nBill No: "+billNo);
+ });
 }
 
-/* ===== WHATSAPP SEND (ITEMS + QTY) ===== */
+/* ===== WHATSAPP ===== */
 function sendWhatsApp(){
 
- if(mobile.value.trim().length<10){
-   alert("Enter valid mobile number");return;
- }
-
- if(billItems.length==0){
-   alert("No items added");return;
- }
-
- let itemText="";
- billItems.forEach((it,i)=>{
-   itemText += `${i+1}. ${it.name}  x${it.qty}
-   @₹${it.price} = ₹${it.amount}\n`;
+ let txt="";
+ billTable.querySelectorAll("tr").forEach((r,i)=>{
+  if(i>0){
+   let c=r.cells;
+   txt+=`${c[1].innerText} x${c[2].innerText} = ₹${c[4].innerText}\n`;
+  }
  });
 
  let msg=
 `SVLN SOLUTIONS
-5-33, Gold Market Street, Pithapuram
-📞 9533330347, 9494488885
-
-Date: ${bdate.innerText}
 Customer: ${cname.value}
+Mobile: ${mobile.value}
 
-ITEMS:
-${itemText}
---------------------
-Total: ₹${total.innerText}
-GST: ₹${gst.innerText}
-Grand Total: ₹${grand.innerText}
+${txt}
+Total: ₹${grand.innerText}
 
 ${words.innerText}
 
-Thank you for shopping 🙏
-Visit Again`;
+Thank you 🙏`;
 
- window.open(
-  "https://wa.me/91"+mobile.value+"?text="+encodeURIComponent(msg),
-  "_blank"
- );
+ window.open("https://wa.me/91"+mobile.value+"?text="+encodeURIComponent(msg));
 }
 
 const totalEl=document.getElementById("total");
@@ -212,5 +239,3 @@ const totalEl=document.getElementById("total");
 
 </body>
 </html>
-
-
