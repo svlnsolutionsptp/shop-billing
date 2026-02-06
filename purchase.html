@@ -22,7 +22,7 @@ button{background:#0a4da3;color:#fff;border:none;}
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbyD8AUjyGccSxZ5RzPVi_Xxb2fDg8bl1jTAJdS2hYvGRD4wWiadMgSCfau73uFTj-4B/exec";
+const API="https://script.google.com/macros/s/AKfycbzPfrF8QAfR6CSGsuLnwCIASOTKobXiw9PqPc3a5JqwcvOMI4pcfChUfSrAHQkLZ0u_8g/exec";
 function save(){
  fetch(`${API}?action=purchase&supplier=${supplier.value}&code=${code.value}&name=${name.value}&qty=${qty.value}&cost=${cost.value}`)
  .then(r=>r.text()).then(t=>alert(t));
@@ -31,4 +31,5 @@ function save(){
 
 </body>
 </html>
+
 
