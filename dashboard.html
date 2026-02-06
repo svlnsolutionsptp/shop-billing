@@ -1,99 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SVLN Solutions - Dashboard</title>
-
+<title>SVLN Dashboard</title>
 <style>
-body{
-  font-family:Arial;
-  background:#f2f2f2;
-  margin:0;
-}
-
-.header{
-  background:#1f4fd8;
-  color:#fff;
-  padding:15px;
-  text-align:center;
-  font-size:20px;
-}
-
-.container{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:20px;
-  padding:30px;
-}
-
+body{font-family:Arial;background:#eef2ff}
+h2{text-align:center;color:#1f4fd8}
+.grid{display:flex;flex-wrap:wrap;justify-content:center}
 .card{
-  background:#fff;
-  padding:25px;
-  border-radius:10px;
-  text-align:center;
-  box-shadow:0 5px 15px rgba(0,0,0,0.15);
-  cursor:pointer;
-  transition:0.2s;
+  background:#fff;width:220px;margin:15px;padding:25px;
+  border-radius:12px;text-align:center;
+  box-shadow:0 6px 18px rgba(0,0,0,.15);
+  cursor:pointer;transition:.2s
 }
-
-.card:hover{
-  transform:scale(1.05);
-}
-
-.card h3{
-  margin:10px 0;
-  color:#1f4fd8;
-}
-
-.logout{
-  position:fixed;
-  top:15px;
-  right:20px;
-  background:#ff4d4d;
-  color:#fff;
-  border:none;
-  padding:8px 14px;
-  border-radius:6px;
-  cursor:pointer;
-}
+.card:hover{transform:scale(1.05)}
 </style>
 </head>
-
 <body>
-
-<div class="header">
-  SVLN SOLUTIONS – Dashboard
+<h2>SVLN REPORT DASHBOARD</h2>
+<div class="grid">
+  <div class="card" onclick="go('stock.html')">📦 Stock Report</div>
+  <div class="card" onclick="go('sales.html')">🧾 Sales Report</div>
+  <div class="card" onclick="go('purchaseReport.html')">📥 Purchase Report</div>
+  <div class="card" onclick="go('expenseReport.html')">💸 Expense Report</div>
+  <div class="card" onclick="go('profit.html')">📊 Profit Summary</div>
 </div>
-
-<button class="logout" onclick="logout()">Logout</button>
-
-<div class="container">
-
-  <div class="card" onclick="go('billing.html')">
-    <h3>🧾 Billing</h3>
-    <p>Create new invoice</p>
-  </div>
-
-  <div class="card" onclick="go('purchase.html')">
-    <h3>📦 Purchase</h3>
-    <p>Add stock purchase</p>
-  </div>
-
-  <div class="card" onclick="go('expenses.html')">
-    <h3>💸 Expenses</h3>
-    <p>Shop expenses</p>
-  </div>
-
-</div>
-
-<script>
-function go(page){
-  window.location.href = page;
-}
-
-function logout(){
-  window.location.href = "login.html";
-}
-</script>
-
+<script>function go(p){location.href=p}</script>
 </body>
 </html>
