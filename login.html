@@ -2,44 +2,22 @@
 <html>
 <head>
 <title>SVLN SOLUTIONS - Login</title>
-
 <style>
 body{
-  margin:0;
-  height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:linear-gradient(135deg,#0a4da3,#00b4db);
-  font-family:Arial;
+  margin:0;height:100vh;display:flex;justify-content:center;align-items:center;
+  background:linear-gradient(135deg,#0a4da3,#00b4db);font-family:Arial;
 }
 .box{
-  width:360px;
-  background:#fff;
-  padding:30px;
-  border-radius:10px;
-  text-align:center;
-  box-shadow:0 10px 25px rgba(0,0,0,0.3);
+  width:360px;background:#fff;padding:30px;border-radius:10px;text-align:center;
+  box-shadow:0 10px 25px rgba(0,0,0,.3);
 }
-h1{color:#0a4da3;}
-input{
-  width:100%;
-  padding:10px;
-  margin:10px 0;
-}
-button{
-  width:100%;
-  padding:10px;
-  background:#0a4da3;
-  color:#fff;
-  border:none;
-}
+input{width:100%;padding:10px;margin:10px 0;}
+button{width:100%;padding:10px;background:#0a4da3;color:#fff;border:none;}
 #error{color:red;}
 </style>
 </head>
 
 <body>
-
 <div class="box">
 <h1>SVLN SOLUTIONS</h1>
 <p>Welcome – Login</p>
@@ -52,20 +30,16 @@ button{
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbyXTPRGR84GaAcEWxGWg7mzyBh-ywnoqbyWP1jkkYdu7xNzTTUXquloh8Q2YOEeazfc0g/exec";
+const API="https://script.google.com/macros/s/AKfycbyG4J4AS6h8iCoMZFw6gGBIEJqLwSIATrt2YjHPHCAMpEcvGtKb9Hu6VkUwy4SFgbF34Q/exec";
 
 function login(){
  fetch(`${API}?action=login&user=${u.value}&pass=${p.value}`)
  .then(r=>r.text())
  .then(res=>{
-   if(res=="SUCCESS"){
-     location.href="billing.html";
-   }else{
-     error.innerText="Invalid Login";
-   }
+   if(res=="SUCCESS") location.href="billing.html";
+   else error.innerText="Invalid Login";
  });
 }
 </script>
-
 </body>
 </html>
