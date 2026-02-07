@@ -1,137 +1,294 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Billing</title>
+<meta charset="UTF-8">
+<title>SVLN SOLUTIONS Invoice</title>
+
 <style>
-body{font-family:Arial;background:#eceff1}
-@media print{
- *{-webkit-print-color-adjust:exact}
- .no-print{display:none}
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:#eee;
 }
 .invoice{
- width:820px;
- margin:auto;
- background:#fff;
- border-radius:18px;
- box-shadow:0 15px 40px rgba(0,0,0,.25);
- overflow:hidden;
+  width:820px;
+  margin:20px auto;
+  background:#fff;
+  box-shadow:0 0 20px rgba(0,0,0,.3);
 }
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body{background:#fff}
+  .no-print{display:none}
+}
+
+/* HEADER */
 .header{
- background:linear-gradient(135deg,#ff416c,#ff4b2b);
- color:#fff;
- padding:20px;
+  background:linear-gradient(135deg,#111 60%,#c60000 60%);
+  color:#fff;
+  padding:20px;
 }
 .header h2{margin:0}
-.section{padding:15px}
-table{width:100%;border-collapse:collapse}
+.header small{font-size:13px}
+
+/* INFO */
+.info{
+  display:flex;
+  justify-content:space-between;
+  padding:15px;
+  font-size:14px;
+}
+.info div{line-height:1.6}
+
+/* TABLE */
+table{
+  width:100%;
+  border-collapse:collapse;
+}
 th{
- background:#ff416c;
- color:#fff;
- padding:8px;
+  background:#c60000;
+  color:#fff;
+  padding:8px;
 }
 td{
- border:1px solid #ddd;
- padding:6px;
- text-align:center;
+  border:1px solid #aaa;
+  padding:7px;
+  text-align:center;
 }
-.btn{
- background:linear-gradient(135deg,#36d1dc,#5b86e5);
- color:#fff;
- border:none;
- padding:10px 18px;
- border-radius:12px;
- cursor:pointer;
- transition:.3s;
+.left{text-align:left}
+
+/* TOTAL */
+.total{
+  padding:15px;
+  text-align:right;
+  font-size:16px;
 }
-.btn:hover{transform:scale(1.05)}
+
+/* TERMS */
+.terms{
+  padding:15px;
+  font-size:13px;
+}
+.terms h4{
+  margin-bottom:5px;
+  color:#c60000;
+}
+
+/* FOOTER */
 .footer{
- background:#ff416c;
- color:#fff;
- text-align:center;
- padding:10px;
+  background:#c60000;
+  color:#fff;
+  text-align:center;
+  padding:10px;
+  font-size:14px;
+}
+
+/* BUTTONS */
+.btn{
+  background:#111;
+  color:#fff;
+  border:none;
+  padding:8px 16px;
+  margin:4px;
+  cursor:pointer;
+  transition:.3s;
+}
+.btn:hover{
+  transform:scale(1.08);
+  opacity:.9;
 }
 </style>
 </head>
+
 <body>
 
 <div class="invoice">
 
+<!-- HEADER -->
 <div class="header">
-<h2>SVLN SOLUTIONS</h2>
-5-33 Gold Market Street, Pithapuram<br>
-📞 9533330347, 9494488885
+  <h2>SVLN SOLUTIONS</h2>
+  <small>
+    Laptop & Mobile Sales | Accessories | Service Center<br>
+    5-33, Gold Market Street, Pithapuram – 533450<br>
+    📞 9533330347, 9494488885
+  </small>
 </div>
 
-<div class="section">
-Mobile <input id="m" onblur="cust()">
-Name <input id="n"><br><br>
-
-<select id="i"></select>
-Qty <input id="q" value="1" style="width:60px">
-Rate <input id="r" style="width:80px">
-<button class="btn no-print" onclick="add()">Add</button>
+<!-- CUSTOMER + INVOICE INFO -->
+<div class="info">
+  <div>
+    <b>Bill To:</b><br>
+    Name : <span id="cnameText">—</span><br>
+    Mobile : <span id="cmobileText">—</span><br>
+    Address : <span id="caddrText">—</span>
+  </div>
+  <div style="text-align:right">
+    <b>Invoice No:</b> <span id="billno">—</span><br>
+    <b>Date:</b> <span id="billdate"></span>
+  </div>
 </div>
 
-<table id="t">
-<tr><th>Item</th><th>Qty</th><th>Total</th></tr>
+<!-- ENTRY (HIDDEN IN PRINT) -->
+<div class="no-print" style="padding:15px">
+  Mobile:
+  <input id="mobile" onblur="fetchCustomer()">
+  Name:
+  <input id="cname">
+  Address:
+  <input id="caddr" style="width:300px"><br><br>
+
+  <select id="item"></select>
+  Qty <input id="qty" type="number" value="1" style="width:60px">
+  Rate <input id="price" style="width:80px">
+  <button class="btn" onclick="addItem()">Add Item</button>
+</div>
+
+<!-- ITEMS TABLE -->
+<table id="bill">
+<thead>
+<tr>
+  <th>#</th>
+  <th class="left">Item Description</th>
+  <th>Rate</th>
+  <th>Qty</th>
+  <th>Total</th>
+</tr>
+</thead>
+<tbody></tbody>
 </table>
 
-<div class="section" style="text-align:right">
-<h3>Total ₹ <span id="gt">0</span></h3>
-Paid <input id="p" value="0"><br>
-<b>Due ₹ <span id="d">0</span></b>
+<!-- TOTAL -->
+<div class="total">
+  <b>Grand Total: ₹ <span id="grand">0</span></b><br>
+  Paid: ₹ <input id="paid" type="number" value="0" style="width:90px"><br>
+  <b>Balance Due: ₹ <span id="due">0</span></b>
 </div>
 
-<div class="section no-print" style="text-align:center">
-<button class="btn" onclick="save()">Save</button>
-<button class="btn" onclick="wa()">WhatsApp</button>
-<button class="btn" onclick="window.print()">Print</button>
+<!-- TERMS -->
+<div class="terms">
+  <h4>Terms & Conditions</h4>
+  • Goods once sold will not be taken back.<br>
+  • Accessories warranty as per manufacturer only.<br>
+  • Service warranty limited to the reported issue only.<br>
+  • Physical or liquid damage not covered under warranty.<br>
+  • Please preserve this bill for warranty purpose.
 </div>
 
-<div class="footer">Thank you – Visit Again 🙏</div>
+<!-- ACTIONS -->
+<div class="no-print" style="text-align:center;padding-bottom:10px">
+  <button class="btn" onclick="saveBill()">Generate Bill</button>
+  <button class="btn" onclick="sendWA()">WhatsApp</button>
+  <button class="btn" onclick="window.print()">Print</button>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  Thank you for your business – Visit Again 🙏
+</div>
+
 </div>
 
 <script>
 const API="https://script.google.com/macros/s/AKfycbzgjTvvG9kJxl294NT-rQONzNwZL-aHcO8Ygicg3ylZdnmI6bZ8qs-LzYF4gkAb7MiRDg/exec";
-let items=[],gt=0;
 
+billdate.innerText=new Date().toLocaleDateString();
+let items=[], sno=1, grandTotal=0;
+
+/* LOAD PRODUCTS */
 fetch(API+"?action=products")
 .then(r=>r.json())
 .then(d=>{
- d.forEach(x=>i.innerHTML+=`<option value=${x[0]} data-p=${x[3]}>${x[1]}</option>`);
- r.value=i.selectedOptions[0].dataset.p;
+ d.forEach(p=>{
+  let o=document.createElement("option");
+  o.value=p[0];
+  o.text=p[1];
+  o.dataset.price=p[3];
+  item.appendChild(o);
+ });
+ price.value=item.options[0].dataset.price;
 });
-i.onchange=()=>r.value=i.selectedOptions[0].dataset.p;
+item.onchange=()=>price.value=item.options[item.selectedIndex].dataset.price;
 
-function cust(){
- fetch(API+"?action=getCustomer&mobile="+m.value)
- .then(r=>r.text()).then(x=>n.value=x);
+/* CUSTOMER FETCH */
+function fetchCustomer(){
+ fetch(API+"?action=getCustomer&mobile="+mobile.value)
+ .then(r=>r.text())
+ .then(n=>{
+  if(n) cname.value=n;
+  updateCustomerView();
+ });
 }
 
-function add(){
- let tot=q.value*r.value;
- gt+=Number(tot);
- items.push({code:i.value,qty:q.value,price:r.value});
- t.innerHTML+=`<tr><td>${i.selectedOptions[0].text}</td><td>${q.value}</td><td>${tot}</td></tr>`;
- gtEl.innerText=gt;
- d.innerText=gt-(+p.value||0);
-}
-p.oninput=()=>d.innerText=gt-(+p.value||0);
+/* ADD ITEM */
+function addItem(){
+ let q=+qty.value;
+ let p=+price.value;
+ let t=q*p;
+ grandTotal+=t;
 
-function save(){
- fetch(API+"?action=sell&items="+encodeURIComponent(JSON.stringify(items))+
- "&cname="+n.value+"&mobile="+m.value+"&paid="+p.value)
- .then(r=>r.text()).then(b=>alert("Bill "+b));
-}
+ items.push({code:item.value,qty:q,price:p});
 
-function wa(){
- let msg="SVLN SOLUTIONS BILL\n";
- items.forEach(x=>msg+=`${x.qty} x ${x.code} = ₹${x.qty*x.price}\n`);
- msg+="Total ₹"+gt;
- open("https://wa.me/91"+m.value+"?text="+encodeURIComponent(msg));
+ let r=bill.tBodies[0].insertRow();
+ r.insertCell(0).innerText=sno++;
+ r.insertCell(1).innerText=item.options[item.selectedIndex].text;
+ r.insertCell(2).innerText=p;
+ r.insertCell(3).innerText=q;
+ r.insertCell(4).innerText=t;
+
+ updateTotals();
 }
 
-const gtEl=document.getElementById("gt");
+paid.oninput=updateTotals;
+function updateTotals(){
+ grand.innerText=grandTotal;
+ due.innerText=grandTotal-(+paid.value||0);
+ updateCustomerView();
+}
+
+/* UPDATE CUSTOMER DISPLAY */
+function updateCustomerView(){
+ cnameText.innerText=cname.value||"—";
+ cmobileText.innerText=mobile.value||"—";
+ caddrText.innerText=caddr.value||"—";
+}
+
+/* SAVE BILL */
+function saveBill(){
+ fetch(API+"?action=sell"+
+ "&items="+encodeURIComponent(JSON.stringify(items))+
+ "&cname="+encodeURIComponent(cname.value)+
+ "&mobile="+encodeURIComponent(mobile.value)+
+ "&paid="+paid.value)
+ .then(r=>r.text())
+ .then(b=>{
+  billno.innerText=b;
+  alert("Invoice Generated: "+b);
+ });
+}
+
+/* WHATSAPP */
+function sendWA(){
+ let msg=
+`SVLN SOLUTIONS
+Invoice: ${billno.innerText}
+Customer: ${cname.value}
+Mobile: ${mobile.value}
+
+Items:
+`;
+ items.forEach(i=>{
+  msg+=`${i.qty} x ${i.code} = ₹${i.qty*i.price}\n`;
+ });
+ msg+=`
+Total: ₹${grandTotal}
+Paid: ₹${paid.value}
+Due: ₹${due.innerText}
+
+SVLN SOLUTIONS
+📞 9533330347, 9494488885
+Thank you for visiting`;
+
+ window.open("https://wa.me/91"+mobile.value+"?text="+encodeURIComponent(msg));
+}
 </script>
 
 </body>
