@@ -1,35 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>SVLN SOLUTIONS Dashboard</title>
-<style>
-body{font-family:Arial;background:#f4f4f4}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px}
-.card{background:#222;color:#fff;padding:20px;text-align:center;
-border-radius:8px;cursor:pointer;font-size:18px}
-.card:hover{background:#c60000}
-</style>
-</head>
-<body>
+<h2>Dashboard</h2>
 
-<h2>SVLN SOLUTIONS – Dashboard</h2>
+<h3>Operations</h3>
+<button onclick="go('billing.html')">Billing</button>
+<button onclick="go('purchase.html')">Purchase</button>
+<button onclick="go('expenses.html')">Expenses</button>
 
-<div class="grid">
-  <div class="card" onclick="go('billing.html')">🧾 Billing</div>
-  <div class="card" onclick="go('purchase.html')">📦 Purchase</div>
-  <div class="card" onclick="go('expenses.html')">💸 Expenses</div>
-  <div class="card" onclick="go('old-bill.html')">🔍 Old Bill Payment</div>
-</div>
+<h3>Money & Customers</h3>
+<button onclick="go('cashbook.html')">Cash Book</button>
+<button onclick="go('due.html')">Due Amount</button>
 
 <h3>Reports</h3>
-<div class="grid">
-  <div class="card" onclick="go('due-report.html')">🧾 Due Report</div>
-  <div class="card" onclick="go('cashbook.html')">💰 Cash Book</div>
-</div>
+<button onclick="go('stock.html')">Stock</button>
+<button onclick="go('sales.html')">Sales</button>
+<button onclick="go('purchase-report.html')">Purchase</button>
+<button onclick="go('expense-report.html')">Expense</button>
+<button onclick="go('profit.html')">Profit</button>
 
 <script>
-function go(p){location.href=p;}
+function go(p){location=p;}
 </script>
-
-</body>
-</html>
