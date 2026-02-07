@@ -1,57 +1,140 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Billing</title>
+<meta charset="UTF-8">
+<title>SVLN SOLUTIONS - Bill</title>
+
 <style>
-body{font-family:Arial}
-table{width:100%;border-collapse:collapse}
-th,td{border:1px solid #ccc;padding:6px;text-align:center}
+body{
+  font-family:Arial;
+  background:#eee;
+}
+.invoice{
+  width:800px;
+  margin:auto;
+  background:#fff;
+  box-shadow:0 0 15px #999;
+}
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .no-print{display:none;}
+}
+.header{
+  background:linear-gradient(135deg,#111 60%,#c60000 60%);
+  color:#fff;
+  padding:20px;
+}
+.header h2{margin:0}
+.sub{font-size:13px}
+.top{
+  display:flex;
+  justify-content:space-between;
+  padding:15px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th{
+  background:#c60000;
+  color:#fff;
+}
+th,td{
+  border:1px solid #aaa;
+  padding:6px;
+  text-align:center;
+}
+.right{text-align:right}
+.footer{
+  background:#c60000;
+  color:#fff;
+  text-align:center;
+  padding:10px;
+  margin-top:10px;
+}
+.btn{
+  background:#111;
+  color:#fff;
+  padding:8px 15px;
+  border:none;
+  cursor:pointer;
+}
+.btn:active{transform:scale(.96)}
 </style>
 </head>
+
 <body>
 
-<h2>SVLN SOLUTIONS – BILLING</h2>
+<div class="invoice">
 
-Customer Mobile:
-<input id="mobile" onblur="fetchCustomer()">
-Customer Name:
-<input id="cname"><br><br>
+<div class="header">
+  <h2>SVLN SOLUTIONS</h2>
+  <div class="sub">
+    5-33, Gold Market Street, Pithapuram – 533450<br>
+    📞 9533330347, 9494488885
+  </div>
+</div>
 
-<select id="item"></select>
-Qty <input id="qty" type="number" value="1" style="width:60px">
-Rate <input id="price" style="width:80px">
-<button onclick="addItem()">Add</button>
+<div class="top">
+  <div>
+    <b>Customer</b><br>
+    Mobile: <input id="mobile" onblur="fetchCustomer()"><br>
+    Name: <input id="cname">
+  </div>
+  <div class="right">
+    <b>Invoice</b><br>
+    No: <span id="billno">—</span><br>
+    Date: <span id="date"></span>
+  </div>
+</div>
+
+<div class="no-print" style="padding:10px">
+  <select id="item"></select>
+  Qty <input id="qty" type="number" value="1" style="width:60px">
+  Rate <input id="price" style="width:80px">
+  <button class="btn" onclick="addItem()">Add Item</button>
+</div>
 
 <table id="bill">
-<tr><th>#</th><th>Item</th><th>Rate</th><th>Qty</th><th>Total</th></tr>
+<tr>
+  <th>#</th><th>Item</th><th>Rate</th><th>Qty</th><th>Total</th>
+</tr>
 </table>
 
-<h3>Grand Total: ₹ <span id="grand">0</span></h3>
+<div style="padding:15px;text-align:right">
+  <h3>Grand Total: ₹ <span id="grand">0</span></h3>
+  Paid: <input id="paid" type="number" value="0"><br>
+  <b>Due: ₹ <span id="due">0</span></b>
+</div>
 
-Paid Amount:
-<input id="paid" type="number" value="0">
+<div class="no-print" style="text-align:center;padding-bottom:10px">
+  <button class="btn" onclick="saveBill()">Generate Bill</button>
+  <button class="btn" onclick="window.print()">Print</button>
+</div>
 
-<h3>Due Amount: ₹ <span id="due">0</span></h3>
+<div class="footer">
+🙏  Thank you for your business – Visit Again 🙏
+</div>
 
-<button onclick="saveBill()">Generate Bill</button>
-<button onclick="window.print()">Print</button>
+</div>
 
 <script>
 const API="https://script.google.com/macros/s/AKfycbzYV6MhuNK-yJRCg80ILwqOAVNz1WktoBjQPldYQDC6sR9HqaZNxcaI8i_WwZ24DPCB-g/exec";
+date.innerText=new Date().toLocaleDateString();
 
 let items=[], sno=1, grand=0;
 
 fetch(API+"?action=products")
 .then(r=>r.json())
 .then(d=>{
-  d.forEach(p=>{
-    let o=document.createElement("option");
-    o.value=p[0];
-    o.text=p[1];
-    o.dataset.price=p[3];
-    item.appendChild(o);
-  });
-  price.value=item.options[0].dataset.price;
+ d.forEach(p=>{
+  let o=document.createElement("option");
+  o.value=p[0];
+  o.text=p[1];
+  o.dataset.price=p[3];
+  item.appendChild(o);
+ });
+ price.value=item.options[0].dataset.price;
 });
 item.onchange=()=>price.value=item.options[item.selectedIndex].dataset.price;
 
@@ -63,8 +146,8 @@ function fetchCustomer(){
 
 function addItem(){
  let q=+qty.value, p=+price.value;
- let total=q*p;
- grand+=total;
+ let t=q*p;
+ grand+=t;
  items.push({code:item.value,qty:q,price:p});
 
  let r=bill.insertRow();
@@ -72,17 +155,16 @@ function addItem(){
  r.insertCell(1).innerText=item.options[item.selectedIndex].text;
  r.insertCell(2).innerText=p;
  r.insertCell(3).innerText=q;
- r.insertCell(4).innerText=total;
+ r.insertCell(4).innerText=t;
 
- grandSpan();
+ update();
 }
 
-function grandSpan(){
+paid.oninput=update;
+function update(){
  grandEl.innerText=grand;
  due.innerText=(grand-(+paid.value||0));
 }
-
-paid.oninput=grandSpan;
 
 function saveBill(){
  fetch(API+"?action=sell"+
@@ -91,7 +173,10 @@ function saveBill(){
  "&mobile="+mobile.value+
  "&paid="+paid.value)
  .then(r=>r.text())
- .then(b=>alert("Bill Generated: "+b));
+ .then(b=>{
+  billno.innerText=b;
+  alert("Bill Generated: "+b);
+ });
 }
 
 const grandEl=document.getElementById("grand");
