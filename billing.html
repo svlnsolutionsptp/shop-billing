@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>SVLN SOLUTIONS - Invoice</title>
+<title>SVLN SOLUTIONS - Billing</title>
 
 <style>
 body{font-family:Arial;background:#eee}
@@ -10,32 +10,27 @@ body{font-family:Arial;background:#eee}
   width:820px;margin:20px auto;background:#fff;
   box-shadow:0 0 25px rgba(0,0,0,.35)
 }
-@media print{
-  *{-webkit-print-color-adjust:exact}
-  body{background:#fff}
-  .no-print{display:none}
-}
 .header{
   background:linear-gradient(135deg,#111 65%,#c60000 65%);
   color:#fff;padding:20px
 }
-.header h2{margin:0}
-.info{
-  display:flex;justify-content:space-between;
-  padding:15px;font-size:14px
-}
+.info{display:flex;justify-content:space-between;padding:15px}
 table{width:100%;border-collapse:collapse}
 th{background:#c60000;color:#fff;padding:8px}
 td{border:1px solid #aaa;padding:6px;text-align:center}
-.left{text-align:left}
-.total{padding:15px;text-align:right;font-size:16px}
+.total{text-align:right;padding:15px}
 .footer{background:#c60000;color:#fff;text-align:center;padding:10px}
-.btn{
-  background:#111;color:#fff;border:none;
-  padding:8px 16px;border-radius:6px;
-  cursor:pointer;transition:.3s
+.btn{background:#111;color:#fff;border:none;padding:8px 16px;cursor:pointer}
+.msg{
+  padding:8px;
+  margin:10px;
+  display:none;
+  border-radius:6px;
 }
-.btn:hover{transform:scale(1.08)}
+.success{background:#d4edda;color:#155724}
+.error{background:#f8d7da;color:#721c24}
+.no-print{display:block}
+@media print{.no-print{display:none}}
 </style>
 </head>
 
@@ -46,99 +41,106 @@ td{border:1px solid #aaa;padding:6px;text-align:center}
 <div class="header">
 <h2>SVLN SOLUTIONS</h2>
 Laptop & Mobile Sales | Accessories | Service<br>
-5-33, Gold Market Street, Pithapuram – 533450<br>
 📞 9533330347, 9494488885
 </div>
 
 <div class="info">
 <div>
-<b>Bill To:</b><br>
-Name : <span id="cnameText">—</span><br>
-Mobile : <span id="cmobileText">—</span><br>
-Address : <span id="caddrText">—</span>
+<b>Customer:</b><br>
+Name: <span id="cnameText">—</span><br>
+Mobile: <span id="cmobileText">—</span><br>
+Address: <span id="caddrText">—</span>
 </div>
-<div style="text-align:right">
-<b>Invoice No:</b> <span id="billno">—</span><br>
-<b>Date:</b> <span id="billdate"></span>
+<div>
+<b>Invoice:</b><br>
+<span id="billno">—</span><br>
+<span id="billdate"></span>
 </div>
 </div>
+
+<div id="msg" class="msg"></div>
 
 <div class="no-print" style="padding:15px">
-Mobile <input id="mobile" onblur="fetchCustomer()">
-Name <input id="cname" oninput="updateCustomerView()">
-Address <input id="caddr" style="width:300px" oninput="updateCustomerView()"><br><br>
+Mobile:
+<input id="mobile" onblur="fetchCustomer()">
+Name:
+<input id="cname" oninput="updateView()">
+Address:
+<input id="caddr" oninput="updateView()" style="width:300px"><br><br>
 
 <select id="item"></select>
-Qty <input id="qty" type="number" value="1" style="width:60px">
+Qty <input id="qty" value="1" style="width:60px">
 Rate <input id="price" style="width:80px">
 <button class="btn" onclick="addItem()">Add</button>
 </div>
 
 <table id="bill">
 <thead>
-<tr>
-<th>#</th><th class="left">Item</th><th>Rate</th><th>Qty</th><th>Total</th>
-</tr>
+<tr><th>#</th><th>Item</th><th>Qty</th><th>Rate</th><th>Total</th></tr>
 </thead>
 <tbody></tbody>
 </table>
 
 <div class="total">
-<b>Grand Total: ₹ <span id="grand">0</span></b><br>
-Paid: ₹ <input id="paid" value="0" style="width:90px"><br>
-<b>Balance: ₹ <span id="due">0</span></b><br><br>
-<b>Amount in Words:</b> <span id="amountWords"></span>
+<b>Total ₹ <span id="grand">0</span></b><br>
+Paid <input id="paid" value="0" style="width:80px"><br>
+Balance ₹ <span id="due">0</span>
 </div>
 
-<div class="no-print" style="text-align:center;padding-bottom:10px">
+<div class="no-print" style="text-align:center">
 <button class="btn" onclick="saveBill()">Generate Bill</button>
-<button class="btn" onclick="sendWA()">WhatsApp</button>
-<button class="btn" onclick="window.print()">Print</button>
 </div>
 
 <div class="footer">Thank you – Visit Again 🙏</div>
-
 </div>
 
 <script>
 const API="https://script.google.com/macros/s/AKfycbzgjTvvG9kJxl294NT-rQONzNwZL-aHcO8Ygicg3ylZdnmI6bZ8qs-LzYF4gkAb7MiRDg/exec";
 billdate.innerText=new Date().toLocaleDateString();
 
-let items=[], sno=1, total=0;
+let items=[], total=0, sno=1;
 
-/* LOAD PRODUCTS */
+/* PRODUCTS */
 fetch(API+"?action=products")
 .then(r=>r.json())
 .then(d=>{
  d.forEach(p=>{
   let o=document.createElement("option");
-  o.value=p[0];
-  o.text=p[1];
-  o.dataset.price=p[3];
+  o.value=p[0]; o.text=p[1]; o.dataset.price=p[3];
   item.appendChild(o);
  });
  price.value=item.options[0].dataset.price;
 });
 item.onchange=()=>price.value=item.options[item.selectedIndex].dataset.price;
 
+/* MESSAGE */
+function showMsg(text,type){
+ msg.innerText=text;
+ msg.className="msg "+type;
+ msg.style.display="block";
+ setTimeout(()=>msg.style.display="none",3000);
+}
+
 /* FETCH CUSTOMER */
 function fetchCustomer(){
- if(!mobile.value) return;
- fetch(API+"?action=getCustomer&mobile="+encodeURIComponent(mobile.value))
+ fetch(API+"?action=getCustomer&mobile="+mobile.value)
  .then(r=>r.json())
  .then(d=>{
-  if(d){
-    cname.value=d.name||"";
-    caddr.value=d.address||"";
-  } else {
-    cname.value=""; caddr.value="";
+  if(d.found){
+    cname.value=d.name;
+    caddr.value=d.address;
+    showMsg("Customer data loaded ✔","success");
+  }else{
+    cname.value="";
+    caddr.value="";
+    showMsg("New customer – enter details","error");
   }
-  updateCustomerView();
+  updateView();
  });
 }
 
 /* UPDATE VIEW */
-function updateCustomerView(){
+function updateView(){
  cnameText.innerText=cname.value||"—";
  cmobileText.innerText=mobile.value||"—";
  caddrText.innerText=caddr.value||"—";
@@ -146,27 +148,25 @@ function updateCustomerView(){
 
 /* ADD ITEM */
 function addItem(){
- let q=+qty.value, p=+price.value, t=q*p;
+ let q=+qty.value,p=+price.value,t=q*p;
  total+=t;
  items.push({code:item.value,qty:q,price:p});
 
  let r=bill.tBodies[0].insertRow();
  r.insertCell(0).innerText=sno++;
  r.insertCell(1).innerText=item.options[item.selectedIndex].text;
- r.insertCell(2).innerText=p;
- r.insertCell(3).innerText=q;
+ r.insertCell(2).innerText=q;
+ r.insertCell(3).innerText=p;
  r.insertCell(4).innerText=t;
 
  updateTotals();
 }
 
-/* TOTALS */
+/* TOTAL */
 paid.oninput=updateTotals;
 function updateTotals(){
  grand.innerText=total;
  due.innerText=total-(+paid.value||0);
- amountWords.innerText=words(total);
- updateCustomerView();
 }
 
 /* SAVE */
@@ -179,31 +179,8 @@ function saveBill(){
  .then(r=>r.text())
  .then(b=>{
   billno.innerText=b;
-  alert("Invoice: "+b);
+  showMsg("Bill generated: "+b,"success");
  });
-}
-
-/* WHATSAPP */
-function sendWA(){
- let msg=`SVLN SOLUTIONS\nInvoice: ${billno.innerText}\nCustomer: ${cname.value}\nMobile: ${mobile.value}\n\n`;
- items.forEach(i=>msg+=`${i.qty} x ${i.code} = ₹${i.qty*i.price}\n`);
- msg+=`\nTotal: ₹${total}\nPaid: ₹${paid.value}\nDue: ₹${due.innerText}`;
- window.open("https://wa.me/91"+mobile.value+"?text="+encodeURIComponent(msg));
-}
-
-/* AMOUNT IN WORDS */
-function words(n){
- const a=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
- const b=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
- if(n===0) return 'Zero Rupees Only';
- function w(x){
-  if(x<20) return a[x];
-  if(x<100) return b[Math.floor(x/10)]+' '+a[x%10];
-  if(x<1000) return a[Math.floor(x/100)]+' Hundred '+w(x%100);
-  if(x<100000) return w(Math.floor(x/1000))+' Thousand '+w(x%1000);
-  return '';
- }
- return w(n)+' Rupees Only';
 }
 </script>
 
