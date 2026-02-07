@@ -1,198 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>SVLN SOLUTIONS - Invoice</title>
-
+<title>Billing</title>
 <style>
-body{
-  font-family:Arial,Helvetica,sans-serif;
-  background:#eee;
-}
-
-.invoice{
-  width:800px;
-  margin:20px auto;
-  background:#fff;
-  box-shadow:0 5px 20px rgba(0,0,0,.25);
-}
-
-/* FORCE COLOUR PRINT */
-@media print{
-  body{background:#fff}
-  .invoice{box-shadow:none}
-  *{
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-  .no-print{display:none}
-}
-
-/* HEADER */
-.header{
-  background:linear-gradient(135deg,#111 60%, #c60000 60%);
-  color:#fff;
-  padding:20px;
-}
-.header h2{margin:0}
-.header small{font-size:13px}
-
-/* TITLE */
-.title{
-  display:flex;
-  justify-content:space-between;
-  padding:20px;
-}
-.title h1{margin:0;letter-spacing:2px}
-.meta{text-align:right;font-size:14px}
-
-/* SECTIONS */
-.section{padding:0 20px 10px 20px}
-input,select{
-  padding:6px;margin:4px 0;
-}
-
-/* TABLE */
-table{
-  width:100%;
-  border-collapse:collapse;
-}
-thead{
-  background:#c60000;
-  color:#fff;
-}
-th,td{
-  padding:8px;
-  border:1px solid #ccc;
-  text-align:center;
-}
-.text-left{text-align:left}
-
-/* TOTAL BOX */
-.total-box{
-  width:350px;
-  margin-left:auto;
-  margin-top:10px;
-}
-.total-box td{text-align:right}
-
-/* FOOTER */
-.footer{
-  background:#c60000;
-  color:#fff;
-  text-align:center;
-  padding:10px;
-  margin-top:20px;
-  font-size:14px;
-}
-
-.actions{
-  text-align:center;
-  padding:15px;
-}
-button{
-  padding:8px 16px;
-  margin:5px;
-  background:#111;
-  color:#fff;
-  border:none;
-  cursor:pointer;
-}
-button:active{transform:scale(.95);opacity:.85}
+body{font-family:Arial}
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #ccc;padding:6px;text-align:center}
 </style>
 </head>
-
 <body>
 
-<div class="invoice">
+<h2>SVLN SOLUTIONS – BILLING</h2>
 
-  <!-- HEADER -->
-  <div class="header">
-    <h2>SVLN SOLUTIONS</h2>
-    <small>
-      5-33, Gold Market Street, Pithapuram, Andhra Pradesh – 533450<br>
-      📞 9533330347, 9494488885
-    </small>
-  </div>
+Customer Mobile:
+<input id="mobile" onblur="fetchCustomer()">
+Customer Name:
+<input id="cname"><br><br>
 
-  <!-- TITLE -->
-  <div class="title">
-    <h1>INVOICE</h1>
-    <div class="meta">
-      Invoice No: <b id="billno">—</b><br>
-      Date: <b id="billdate"></b>
-    </div>
-  </div>
+<select id="item"></select>
+Qty <input id="qty" type="number" value="1" style="width:60px">
+Rate <input id="price" style="width:80px">
+<button onclick="addItem()">Add</button>
 
-  <!-- CUSTOMER -->
-  <div class="section">
-    <b>Invoice To</b><br>
-    Mobile:
-    <input id="mobile" onblur="fetchCustomer()">
-    Name:
-    <input id="cname">
-  </div>
+<table id="bill">
+<tr><th>#</th><th>Item</th><th>Rate</th><th>Qty</th><th>Total</th></tr>
+</table>
 
-  <!-- ITEM ENTRY (NO PRINT) -->
-  <div class="section actions no-print">
-    <select id="item"></select>
-    Qty <input id="qty" type="number" value="1" style="width:60px">
-    Rate <input id="price" style="width:80px">
-    GST% <input id="gst" value="18" style="width:60px">
-    <button onclick="addItem()">Add Item</button>
-  </div>
+<h3>Grand Total: ₹ <span id="grand">0</span></h3>
 
-  <!-- ITEMS TABLE -->
-  <table id="bill">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th class="text-left">Product</th>
-        <th>Rate</th>
-        <th>Qty</th>
-        <th>GST%</th>
-        <th>GST Amt</th>
-        <th>Total</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+Paid Amount:
+<input id="paid" type="number" value="0">
 
-  <!-- TOTAL -->
-  <table class="total-box">
-    <tr>
-      <td>Grand Total</td>
-      <td><b>₹ <span id="grand">0.00</span></b></td>
-    </tr>
-    <tr>
-      <td colspan="2"><small><i>Amount in words:</i><br>
-      <b id="words"></b></small></td>
-    </tr>
-  </table>
+<h3>Due Amount: ₹ <span id="due">0</span></h3>
 
-  <!-- FOOTER -->
-  <div class="footer">
-    Thank you for your business
-  </div>
-
-  <!-- ACTIONS -->
-  <div class="actions no-print">
-    <button onclick="saveBill()">Generate Bill</button>
-    <button onclick="window.print()">Print</button>
-    <button onclick="sendWA()">WhatsApp</button>
-  </div>
-
-</div>
+<button onclick="saveBill()">Generate Bill</button>
+<button onclick="window.print()">Print</button>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbyzDdO8_WNehVom7G8BIoGrbOw5HeeEFOi9Zp8BamFyi-U6qMvYDS8h4H1p6kg_UUYSHw/exec";
+const API="https://script.google.com/macros/s/AKfycbzYV6MhuNK-yJRCg80ILwqOAVNz1WktoBjQPldYQDC6sR9HqaZNxcaI8i_WwZ24DPCB-g/exec";
 
-let items=[], sno=1;
-let grandTotal=0;
+let items=[], sno=1, grand=0;
 
-billdate.innerText=new Date().toLocaleDateString();
-
-/* LOAD PRODUCTS */
 fetch(API+"?action=products")
 .then(r=>r.json())
 .then(d=>{
@@ -207,79 +55,46 @@ fetch(API+"?action=products")
 });
 item.onchange=()=>price.value=item.options[item.selectedIndex].dataset.price;
 
-/* CUSTOMER */
 function fetchCustomer(){
-  if(!mobile.value) return;
-  fetch(API+"?action=getCustomer&mobile="+mobile.value)
-  .then(r=>r.text())
-  .then(n=>{ if(n) cname.value=n; });
+ fetch(API+"?action=getCustomer&mobile="+mobile.value)
+ .then(r=>r.text())
+ .then(n=>{if(n)cname.value=n});
 }
 
-/* ADD ITEM */
 function addItem(){
-  let q=+qty.value;
-  let p=+price.value;
-  let g=+gst.value;
+ let q=+qty.value, p=+price.value;
+ let total=q*p;
+ grand+=total;
+ items.push({code:item.value,qty:q,price:p});
 
-  let base=q*p;
-  let gstAmt=base*g/100;
-  let total=base+gstAmt;
+ let r=bill.insertRow();
+ r.insertCell(0).innerText=sno++;
+ r.insertCell(1).innerText=item.options[item.selectedIndex].text;
+ r.insertCell(2).innerText=p;
+ r.insertCell(3).innerText=q;
+ r.insertCell(4).innerText=total;
 
-  grandTotal+=total;
-
-  items.push({code:item.value,qty:q,price:p,gst:g});
-
-  let r=bill.tBodies[0].insertRow();
-  r.insertCell(0).innerText=sno++;
-  r.insertCell(1).innerText=item.options[item.selectedIndex].text;
-  r.insertCell(2).innerText=p.toFixed(2);
-  r.insertCell(3).innerText=q;
-  r.insertCell(4).innerText=g;
-  r.insertCell(5).innerText=gstAmt.toFixed(2);
-  r.insertCell(6).innerText=total.toFixed(2);
-
-  document.getElementById("grand").innerText=grandTotal.toFixed(2);
-  document.getElementById("words").innerText=toWords(grandTotal);
+ grandSpan();
 }
 
-/* SAVE BILL */
+function grandSpan(){
+ grandEl.innerText=grand;
+ due.innerText=(grand-(+paid.value||0));
+}
+
+paid.oninput=grandSpan;
+
 function saveBill(){
-  if(!mobile.value||!cname.value){alert("Customer required");return;}
-  if(items.length===0){alert("Add item");return;}
-
-  fetch(API+"?action=sell"+
-    "&items="+encodeURIComponent(JSON.stringify(items))+
-    "&cname="+encodeURIComponent(cname.value)+
-    "&mobile="+encodeURIComponent(mobile.value)
-  )
-  .then(r=>r.text())
-  .then(b=>{
-    billno.innerText=b;
-    alert("Invoice Generated: "+b);
-  });
+ fetch(API+"?action=sell"+
+ "&items="+encodeURIComponent(JSON.stringify(items))+
+ "&cname="+cname.value+
+ "&mobile="+mobile.value+
+ "&paid="+paid.value)
+ .then(r=>r.text())
+ .then(b=>alert("Bill Generated: "+b));
 }
 
-/* WHATSAPP */
-function sendWA(){
-  let msg=`SVLN SOLUTIONS Invoice\nAmount ₹${grandTotal.toFixed(2)}\nThank you`;
-  window.open("https://wa.me/91"+mobile.value+"?text="+encodeURIComponent(msg));
-}
-
-/* AMOUNT IN WORDS (INDIAN) */
-function toWords(num){
-  const a=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten',
-  'Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
-  const b=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
-  function n2w(n){
-    if(n<20)return a[n];
-    if(n<100)return b[Math.floor(n/10)]+' '+a[n%10];
-    if(n<1000)return a[Math.floor(n/100)]+' Hundred '+n2w(n%100);
-    if(n<100000)return n2w(Math.floor(n/1000))+' Thousand '+n2w(n%1000);
-    if(n<10000000)return n2w(Math.floor(n/100000))+' Lakh '+n2w(n%100000);
-    return n2w(Math.floor(n/10000000))+' Crore '+n2w(n%10000000);
-  }
-  return n2w(Math.floor(num))+' Rupees Only';
-}
+const grandEl=document.getElementById("grand");
 </script>
 
 </body>
