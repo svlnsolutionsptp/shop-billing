@@ -1,0 +1,15 @@
+<h3>Old Bill Payment</h3>
+
+Bill No <input id="b"><br>
+Paid Amount <input id="a"><br>
+
+<button onclick="pay()">Add Payment</button>
+
+<script>
+const API="https://script.google.com/macros/s/AKfycbzYV6MhuNK-yJRCg80ILwqOAVNz1WktoBjQPldYQDC6sR9HqaZNxcaI8i_WwZ24DPCB-g/exec";
+function pay(){
+ fetch(API+"?action=addPayment&billno="+b.value+"&amount="+a.value)
+ .then(r=>r.text())
+ .then(a=>alert(a));
+}
+</script>
