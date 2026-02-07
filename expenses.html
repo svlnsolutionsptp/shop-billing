@@ -1,130 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>SVLN SOLUTIONS - Expenses</title>
+<h3>Expenses</h3>
 
-<style>
-body{
-  margin:0;
-  padding:0;
-  font-family:Arial;
-  background:#f2f2f2;
-}
+Name <input id="n"><br>
+Amount <input id="a"><br>
+Category <input id="c"><br>
+Remarks <input id="r"><br>
 
-.header{
-  background:#1f4fd8;
-  color:#fff;
-  padding:15px;
-  text-align:center;
-  font-size:20px;
-}
-
-.box{
-  width:420px;
-  margin:40px auto;
-  background:#fff;
-  padding:25px;
-  border-radius:10px;
-  box-shadow:0 5px 20px rgba(0,0,0,0.2);
-}
-
-.box h3{
-  text-align:center;
-  color:#1f4fd8;
-  margin-top:0;
-}
-
-input, select{
-  width:100%;
-  padding:10px;
-  margin:8px 0;
-  font-size:15px;
-  border:1px solid #ccc;
-  border-radius:6px;
-}
-
-button{
-  width:100%;
-  padding:12px;
-  margin-top:15px;
-  background:#1f4fd8;
-  color:#fff;
-  border:none;
-  font-size:16px;
-  border-radius:6px;
-  cursor:pointer;
-}
-button:hover{
-  background:#163bb5;
-}
-</style>
-</head>
-
-<body>
-
-<div class="header">
-  SVLN SOLUTIONS – Expenses Entry
-</div>
-
-<div class="box">
-
-<h3>💸 Add Expense</h3>
-
-<input id="edate" type="date">
-<input id="ename" placeholder="Expense Name (Rent, EB Bill)">
-<input id="amount" type="number" placeholder="Amount">
-
-<select id="category">
-  <option value="Fixed">Fixed</option>
-  <option value="Utility">Utility</option>
-  <option value="Salary">Salary</option>
-  <option value="Maintenance">Maintenance</option>
-  <option value="Other">Other</option>
-</select>
-
-<input id="remarks" placeholder="Remarks (optional)">
-
-<button onclick="saveExpense()">Save Expense</button>
-
-</div>
+<button onclick="save()">Save Expense</button>
 
 <script>
-/* 🔴 REPLACE WITH YOUR APPS SCRIPT WEB APP URL */
-const API = "https://script.google.com/macros/s/AKfycbwiIpYBqBDHshdQUJghoMIy5Zo3tozNAwXq9jNG8F1iccJaxVen247CSEW2pc9bOU0U3Q/exec";
-
-function saveExpense(){
-
-  if(
-    ename.value.trim()==="" ||
-    amount.value===""
-  ){
-    alert("Expense name and amount required");
-    return;
-  }
-
-  fetch(
-    API +
-    "?action=expense" +
-    "&name=" + encodeURIComponent(ename.value.trim()) +
-    "&amount=" + encodeURIComponent(amount.value) +
-    "&category=" + encodeURIComponent(category.value) +
-    "&remarks=" + encodeURIComponent(remarks.value.trim()) +
-    "&date=" + encodeURIComponent(edate.value)
-  )
-  .then(r => r.text())
-  .then(res => {
-    alert(res);
-    // clear fields
-    ename.value="";
-    amount.value="";
-    remarks.value="";
-  })
-  .catch(() => {
-    alert("Expense save failed");
-  });
+const API="https://script.google.com/macros/s/AKfycbzYV6MhuNK-yJRCg80ILwqOAVNz1WktoBjQPldYQDC6sR9HqaZNxcaI8i_WwZ24DPCB-g/exec";
+function save(){
+ fetch(API+"?action=expense"+
+ "&name="+n.value+
+ "&amount="+a.value+
+ "&category="+c.value+
+ "&remarks="+r.value)
+ .then(r=>r.text())
+ .then(a=>alert("Saved"));
 }
 </script>
-
-</body>
-</html>
