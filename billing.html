@@ -1,185 +1,137 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>SVLN SOLUTIONS - Bill</title>
-
+<title>Billing</title>
 <style>
-body{
-  font-family:Arial;
-  background:#eee;
+body{font-family:Arial;background:#eceff1}
+@media print{
+ *{-webkit-print-color-adjust:exact}
+ .no-print{display:none}
 }
 .invoice{
-  width:800px;
-  margin:auto;
-  background:#fff;
-  box-shadow:0 0 15px #999;
-}
-@media print{
-  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  .no-print{display:none;}
+ width:820px;
+ margin:auto;
+ background:#fff;
+ border-radius:18px;
+ box-shadow:0 15px 40px rgba(0,0,0,.25);
+ overflow:hidden;
 }
 .header{
-  background:linear-gradient(135deg,#111 60%,#c60000 60%);
-  color:#fff;
-  padding:20px;
+ background:linear-gradient(135deg,#ff416c,#ff4b2b);
+ color:#fff;
+ padding:20px;
 }
 .header h2{margin:0}
-.sub{font-size:13px}
-.top{
-  display:flex;
-  justify-content:space-between;
-  padding:15px;
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-}
+.section{padding:15px}
+table{width:100%;border-collapse:collapse}
 th{
-  background:#c60000;
-  color:#fff;
+ background:#ff416c;
+ color:#fff;
+ padding:8px;
 }
-th,td{
-  border:1px solid #aaa;
-  padding:6px;
-  text-align:center;
-}
-.right{text-align:right}
-.footer{
-  background:#c60000;
-  color:#fff;
-  text-align:center;
-  padding:10px;
-  margin-top:10px;
+td{
+ border:1px solid #ddd;
+ padding:6px;
+ text-align:center;
 }
 .btn{
-  background:#111;
-  color:#fff;
-  padding:8px 15px;
-  border:none;
-  cursor:pointer;
+ background:linear-gradient(135deg,#36d1dc,#5b86e5);
+ color:#fff;
+ border:none;
+ padding:10px 18px;
+ border-radius:12px;
+ cursor:pointer;
+ transition:.3s;
 }
-.btn:active{transform:scale(.96)}
+.btn:hover{transform:scale(1.05)}
+.footer{
+ background:#ff416c;
+ color:#fff;
+ text-align:center;
+ padding:10px;
+}
 </style>
 </head>
-
 <body>
 
 <div class="invoice">
 
 <div class="header">
-  <h2>SVLN SOLUTIONS</h2>
-  <div class="sub">
-    5-33, Gold Market Street, Pithapuram – 533450<br>
-    📞 9533330347, 9494488885
-  </div>
+<h2>SVLN SOLUTIONS</h2>
+5-33 Gold Market Street, Pithapuram<br>
+📞 9533330347, 9494488885
 </div>
 
-<div class="top">
-  <div>
-    <b>Customer</b><br>
-    Mobile: <input id="mobile" onblur="fetchCustomer()"><br>
-    Name: <input id="cname">
-  </div>
-  <div class="right">
-    <b>Invoice</b><br>
-    No: <span id="billno">—</span><br>
-    Date: <span id="date"></span>
-  </div>
+<div class="section">
+Mobile <input id="m" onblur="cust()">
+Name <input id="n"><br><br>
+
+<select id="i"></select>
+Qty <input id="q" value="1" style="width:60px">
+Rate <input id="r" style="width:80px">
+<button class="btn no-print" onclick="add()">Add</button>
 </div>
 
-<div class="no-print" style="padding:10px">
-  <select id="item"></select>
-  Qty <input id="qty" type="number" value="1" style="width:60px">
-  Rate <input id="price" style="width:80px">
-  <button class="btn" onclick="addItem()">Add Item</button>
-</div>
-
-<table id="bill">
-<tr>
-  <th>#</th><th>Item</th><th>Rate</th><th>Qty</th><th>Total</th>
-</tr>
+<table id="t">
+<tr><th>Item</th><th>Qty</th><th>Total</th></tr>
 </table>
 
-<div style="padding:15px;text-align:right">
-  <h3>Grand Total: ₹ <span id="grand">0</span></h3>
-  Paid: <input id="paid" type="number" value="0"><br>
-  <b>Due: ₹ <span id="due">0</span></b>
+<div class="section" style="text-align:right">
+<h3>Total ₹ <span id="gt">0</span></h3>
+Paid <input id="p" value="0"><br>
+<b>Due ₹ <span id="d">0</span></b>
 </div>
 
-<div class="no-print" style="text-align:center;padding-bottom:10px">
-  <button class="btn" onclick="saveBill()">Generate Bill</button>
-  <button class="btn" onclick="window.print()">Print</button>
+<div class="section no-print" style="text-align:center">
+<button class="btn" onclick="save()">Save</button>
+<button class="btn" onclick="wa()">WhatsApp</button>
+<button class="btn" onclick="window.print()">Print</button>
 </div>
 
-<div class="footer">
-🙏  Thank you for your business – Visit Again 🙏
-</div>
-
+<div class="footer">Thank you – Visit Again 🙏</div>
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbzYV6MhuNK-yJRCg80ILwqOAVNz1WktoBjQPldYQDC6sR9HqaZNxcaI8i_WwZ24DPCB-g/exec";
-date.innerText=new Date().toLocaleDateString();
-
-let items=[], sno=1, grand=0;
+const API="https://script.google.com/macros/s/AKfycbzgjTvvG9kJxl294NT-rQONzNwZL-aHcO8Ygicg3ylZdnmI6bZ8qs-LzYF4gkAb7MiRDg/exec";
+let items=[],gt=0;
 
 fetch(API+"?action=products")
 .then(r=>r.json())
 .then(d=>{
- d.forEach(p=>{
-  let o=document.createElement("option");
-  o.value=p[0];
-  o.text=p[1];
-  o.dataset.price=p[3];
-  item.appendChild(o);
- });
- price.value=item.options[0].dataset.price;
+ d.forEach(x=>i.innerHTML+=`<option value=${x[0]} data-p=${x[3]}>${x[1]}</option>`);
+ r.value=i.selectedOptions[0].dataset.p;
 });
-item.onchange=()=>price.value=item.options[item.selectedIndex].dataset.price;
+i.onchange=()=>r.value=i.selectedOptions[0].dataset.p;
 
-function fetchCustomer(){
- fetch(API+"?action=getCustomer&mobile="+mobile.value)
- .then(r=>r.text())
- .then(n=>{if(n)cname.value=n});
+function cust(){
+ fetch(API+"?action=getCustomer&mobile="+m.value)
+ .then(r=>r.text()).then(x=>n.value=x);
 }
 
-function addItem(){
- let q=+qty.value, p=+price.value;
- let t=q*p;
- grand+=t;
- items.push({code:item.value,qty:q,price:p});
+function add(){
+ let tot=q.value*r.value;
+ gt+=Number(tot);
+ items.push({code:i.value,qty:q.value,price:r.value});
+ t.innerHTML+=`<tr><td>${i.selectedOptions[0].text}</td><td>${q.value}</td><td>${tot}</td></tr>`;
+ gtEl.innerText=gt;
+ d.innerText=gt-(+p.value||0);
+}
+p.oninput=()=>d.innerText=gt-(+p.value||0);
 
- let r=bill.insertRow();
- r.insertCell(0).innerText=sno++;
- r.insertCell(1).innerText=item.options[item.selectedIndex].text;
- r.insertCell(2).innerText=p;
- r.insertCell(3).innerText=q;
- r.insertCell(4).innerText=t;
-
- update();
+function save(){
+ fetch(API+"?action=sell&items="+encodeURIComponent(JSON.stringify(items))+
+ "&cname="+n.value+"&mobile="+m.value+"&paid="+p.value)
+ .then(r=>r.text()).then(b=>alert("Bill "+b));
 }
 
-paid.oninput=update;
-function update(){
- grandEl.innerText=grand;
- due.innerText=(grand-(+paid.value||0));
+function wa(){
+ let msg="SVLN SOLUTIONS BILL\n";
+ items.forEach(x=>msg+=`${x.qty} x ${x.code} = ₹${x.qty*x.price}\n`);
+ msg+="Total ₹"+gt;
+ open("https://wa.me/91"+m.value+"?text="+encodeURIComponent(msg));
 }
 
-function saveBill(){
- fetch(API+"?action=sell"+
- "&items="+encodeURIComponent(JSON.stringify(items))+
- "&cname="+cname.value+
- "&mobile="+mobile.value+
- "&paid="+paid.value)
- .then(r=>r.text())
- .then(b=>{
-  billno.innerText=b;
-  alert("Bill Generated: "+b);
- });
-}
-
-const grandEl=document.getElementById("grand");
+const gtEl=document.getElementById("gt");
 </script>
 
 </body>
