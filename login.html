@@ -1,7 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SVLN SOLUTIONS - Login</title>
+<style>
+body{
+  background:linear-gradient(135deg,#111,#c60000);
+  font-family:Arial; height:100vh;
+  display:flex; align-items:center; justify-content:center;
+}
+.box{
+  background:#fff; padding:30px; width:320px;
+  border-radius:12px; text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+}
+h2{color:#c60000}
+input{
+  width:100%; padding:10px; margin:10px 0;
+}
+button{
+  width:100%; padding:10px;
+  background:#c60000; color:#fff;
+  border:none; cursor:pointer;
+  transition:.3s;
+}
+button:hover{transform:scale(1.05)}
+</style>
+</head>
+<body>
+
+<div class="box">
 <h2>SVLN SOLUTIONS</h2>
 <input id="u" placeholder="Username">
 <input id="p" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
+<button onclick="login()">LOGIN</button>
+</div>
+
 <script>
 const API="https://script.google.com/macros/s/AKfycbzgjTvvG9kJxl294NT-rQONzNwZL-aHcO8Ygicg3ylZdnmI6bZ8qs-LzYF4gkAb7MiRDg/exec";
 function login(){
@@ -10,3 +43,6 @@ function login(){
  .then(a=>a=="OK"?location="dashboard.html":alert("Invalid Login"));
 }
 </script>
+
+</body>
+</html>
