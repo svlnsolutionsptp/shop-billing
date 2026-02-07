@@ -1,71 +1,25 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>SVLN SOLUTIONS - Purchase</title>
-
-<style>
-body{
-  font-family:Arial;
-  background:#f4f6fb;
-}
-.box{
-  width:420px;
-  margin:60px auto;
-  background:#fff;
-  padding:25px;
-  box-shadow:0 5px 20px rgba(0,0,0,.2);
-}
-h3{text-align:center;color:#1f4fd8}
-input{
-  width:100%;
-  padding:8px;
-  margin:6px 0;
-}
-button{
-  width:100%;
-  padding:10px;
-  background:#1f4fd8;
-  color:#fff;
-  border:none;
-}
-button:active{transform:scale(.95);opacity:.8}
-</style>
-</head>
-
-<body>
-
-<div class="box">
 <h3>Purchase Entry</h3>
 
-<input id="supplier" placeholder="Supplier Name">
-<input id="code" placeholder="Item Code">
-<input id="name" placeholder="Item Name">
-<input id="qty" type="number" placeholder="Quantity">
-<input id="cost" type="number" placeholder="Cost Price">
-<input id="sell" type="number" placeholder="Selling Price">
+Supplier <input id="sup"><br>
+Code <input id="code"><br>
+Name <input id="name"><br>
+Qty <input id="qty"><br>
+Cost <input id="cost"><br>
+Sell <input id="sell"><br>
 
-<button onclick="savePurchase()">Save Purchase</button>
-</div>
+<button onclick="save()">Save Purchase</button>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbwrbXi8XyrsB5r44iVS1z6hhF36NZgxjdAF2h0RIIM1XsI6BzspNgIhQEUK1c-IWZgD_w/exec";
-
-function savePurchase(){
-  fetch(API+"?action=purchase"+
-    "&supplier="+supplier.value+
-    "&code="+code.value+
-    "&name="+name.value+
-    "&qty="+qty.value+
-    "&cost="+cost.value+
-    "&sell="+sell.value
-  )
-  .then(r=>r.text())
-  .then(res=>{
-    alert(res);
-  });
+const API="https://script.google.com/macros/s/AKfycbzYV6MhuNK-yJRCg80ILwqOAVNz1WktoBjQPldYQDC6sR9HqaZNxcaI8i_WwZ24DPCB-g/exec";
+function save(){
+ fetch(API+"?action=purchase"+
+ "&supplier="+sup.value+
+ "&code="+code.value+
+ "&name="+name.value+
+ "&qty="+qty.value+
+ "&cost="+cost.value+
+ "&sell="+sell.value)
+ .then(r=>r.text())
+ .then(a=>alert(a));
 }
 </script>
-
-</body>
-</html>
