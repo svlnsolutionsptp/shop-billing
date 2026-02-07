@@ -1,25 +1,189 @@
-<h3>Purchase Entry</h3>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>SVLN SOLUTIONS - Purchase</title>
 
-Supplier <input id="sup"><br>
-Code <input id="code"><br>
-Name <input id="name"><br>
-Qty <input id="qty"><br>
-Cost <input id="cost"><br>
-Sell <input id="sell"><br>
+<style>
+body{font-family:Arial;background:#eee}
+.purchase{
+  width:820px;
+  margin:20px auto;
+  background:#fff;
+  box-shadow:0 0 25px rgba(0,0,0,.35);
+}
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:#fff}
+  .no-print{display:none}
+}
+.header{
+  background:linear-gradient(135deg,#0f2027 65%,#2c5364 65%);
+  color:#fff;
+  padding:20px;
+}
+.header h2{margin:0}
+.info{
+  display:flex;
+  justify-content:space-between;
+  padding:15px;
+  font-size:14px;
+}
+table{width:100%;border-collapse:collapse}
+th{background:#2c5364;color:#fff;padding:8px}
+td{border:1px solid #aaa;padding:6px;text-align:center}
+.left{text-align:left}
+.total{padding:15px;text-align:right;font-size:16px}
+.footer{background:#2c5364;color:#fff;text-align:center;padding:10px}
+.btn{
+  background:#0f2027;color:#fff;border:none;
+  padding:8px 16px;border-radius:6px;
+  cursor:pointer;transition:.3s
+}
+.btn:hover{transform:scale(1.08)}
+</style>
+</head>
 
-<button onclick="save()">Save Purchase</button>
+<body>
+
+<div class="purchase">
+
+<!-- HEADER -->
+<div class="header">
+  <h2>SVLN SOLUTIONS</h2>
+  Purchase Entry – Laptop | Mobile | Accessories | Spares<br>
+  5-33, Gold Market Street, Pithapuram – 533450<br>
+  📞 9533330347, 9494488885
+</div>
+
+<!-- SUPPLIER INFO -->
+<div class="info">
+  <div>
+    <b>Supplier:</b><br>
+    Name : <span id="snameText">—</span><br>
+    Mobile : <span id="smobileText">—</span>
+  </div>
+  <div style="text-align:right">
+    <b>Purchase Date:</b> <span id="pdate"></span>
+  </div>
+</div>
+
+<!-- ENTRY AREA -->
+<div class="no-print" style="padding:15px">
+  Supplier Name <input id="sname" oninput="updateSupplierView()">
+  Mobile <input id="smobile" oninput="updateSupplierView()"><br><br>
+
+  <select id="item"></select>
+  Qty <input id="qty" type="number" value="1" style="width:60px">
+  Purchase Price <input id="price" style="width:80px">
+  Selling Price <input id="sell" style="width:80px">
+  <button class="btn" onclick="addItem()">Add Item</button>
+</div>
+
+<!-- TABLE -->
+<table id="ptable">
+<thead>
+<tr>
+  <th>#</th>
+  <th class="left">Item Name</th>
+  <th>Purchase</th>
+  <th>Selling</th>
+  <th>Qty</th>
+  <th>Total</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<!-- TOTAL -->
+<div class="total">
+  <b>Purchase Total: ₹ <span id="grand">0</span></b>
+</div>
+
+<!-- ACTIONS -->
+<div class="no-print" style="text-align:center;padding-bottom:10px">
+  <button class="btn" onclick="savePurchase()">Save Purchase</button>
+  <button class="btn" onclick="sendWA()">WhatsApp</button>
+  <button class="btn" onclick="window.print()">Print</button>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+Purchase Record – SVLN SOLUTIONS
+</div>
+
+</div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbzYV6MhuNK-yJRCg80ILwqOAVNz1WktoBjQPldYQDC6sR9HqaZNxcaI8i_WwZ24DPCB-g/exec";
-function save(){
+const API="https://script.google.com/macros/s/AKfycbzgjTvvG9kJxl294NT-rQONzNwZL-aHcO8Ygicg3ylZdnmI6bZ8qs-LzYF4gkAb7MiRDg/exec";
+pdate.innerText=new Date().toLocaleDateString();
+
+let items=[], sno=1, total=0;
+
+/* LOAD PRODUCTS */
+fetch(API+"?action=products")
+.then(r=>r.json())
+.then(d=>{
+ d.forEach(p=>{
+  let o=document.createElement("option");
+  o.value=p[0];
+  o.text=p[1];
+  item.appendChild(o);
+ });
+});
+
+/* SUPPLIER DISPLAY */
+function updateSupplierView(){
+ snameText.innerText=sname.value||"—";
+ smobileText.innerText=smobile.value||"—";
+}
+
+/* ADD ITEM */
+function addItem(){
+ let q=+qty.value;
+ let p=+price.value;
+ let s=+sell.value;
+ let t=q*p;
+
+ total+=t;
+ items.push({
+  code:item.value,
+  qty:q,
+  price:p,
+  sell:s
+ });
+
+ let r=ptable.tBodies[0].insertRow();
+ r.insertCell(0).innerText=sno++;
+ r.insertCell(1).innerText=item.options[item.selectedIndex].text;
+ r.insertCell(2).innerText=p;
+ r.insertCell(3).innerText=s;
+ r.insertCell(4).innerText=q;
+ r.insertCell(5).innerText=t;
+
+ grand.innerText=total;
+}
+
+/* SAVE PURCHASE */
+function savePurchase(){
  fetch(API+"?action=purchase"+
- "&supplier="+sup.value+
- "&code="+code.value+
- "&name="+name.value+
- "&qty="+qty.value+
- "&cost="+cost.value+
- "&sell="+sell.value)
+ "&items="+encodeURIComponent(JSON.stringify(items))+
+ "&supplier="+encodeURIComponent(sname.value)+
+ "&mobile="+encodeURIComponent(smobile.value))
  .then(r=>r.text())
- .then(a=>alert(a));
+ .then(a=>alert("Purchase Saved Successfully"));
+}
+
+/* WHATSAPP */
+function sendWA(){
+ let msg=`SVLN SOLUTIONS\nPURCHASE RECORD\nSupplier: ${sname.value}\nMobile: ${smobile.value}\n\nItems:\n`;
+ items.forEach(i=>{
+  msg+=`${i.qty} x ${i.code} = ₹${i.qty*i.price}\n`;
+ });
+ msg+=`\nTotal Purchase: ₹${total}`;
+ window.open("https://wa.me/91"+smobile.value+"?text="+encodeURIComponent(msg));
 }
 </script>
+
+</body>
+</html>
