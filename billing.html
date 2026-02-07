@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>SVLN SOLUTIONS - Billing</title>
+<title>SVLN SOLUTIONS - Invoice</title>
 
 <style>
 body{font-family:Arial;background:#eee}
@@ -10,27 +10,35 @@ body{font-family:Arial;background:#eee}
   width:820px;margin:20px auto;background:#fff;
   box-shadow:0 0 25px rgba(0,0,0,.35)
 }
+@media print{
+  *{-webkit-print-color-adjust:exact}
+  body{background:#fff}
+  .no-print{display:none}
+}
 .header{
   background:linear-gradient(135deg,#111 65%,#c60000 65%);
   color:#fff;padding:20px
 }
-.info{display:flex;justify-content:space-between;padding:15px}
+.info{
+  display:flex;justify-content:space-between;
+  padding:15px;font-size:14px
+}
 table{width:100%;border-collapse:collapse}
 th{background:#c60000;color:#fff;padding:8px}
 td{border:1px solid #aaa;padding:6px;text-align:center}
 .total{text-align:right;padding:15px}
 .footer{background:#c60000;color:#fff;text-align:center;padding:10px}
-.btn{background:#111;color:#fff;border:none;padding:8px 16px;cursor:pointer}
+.btn{
+  background:#111;color:#fff;border:none;
+  padding:8px 16px;border-radius:6px;
+  cursor:pointer;transition:.3s
+}
+.btn:hover{transform:scale(1.05)}
 .msg{
-  padding:8px;
-  margin:10px;
-  display:none;
-  border-radius:6px;
+  margin:10px;padding:8px;border-radius:6px;display:none
 }
 .success{background:#d4edda;color:#155724}
-.error{background:#f8d7da;color:#721c24}
-.no-print{display:block}
-@media print{.no-print{display:none}}
+.warn{background:#f8d7da;color:#721c24}
 </style>
 </head>
 
@@ -46,7 +54,7 @@ Laptop & Mobile Sales | Accessories | Service<br>
 
 <div class="info">
 <div>
-<b>Customer:</b><br>
+<b>Bill To:</b><br>
 Name: <span id="cnameText">—</span><br>
 Mobile: <span id="cmobileText">—</span><br>
 Address: <span id="caddrText">—</span>
@@ -61,17 +69,17 @@ Address: <span id="caddrText">—</span>
 <div id="msg" class="msg"></div>
 
 <div class="no-print" style="padding:15px">
-Mobile:
+Mobile
 <input id="mobile" onblur="fetchCustomer()">
-Name:
+Name
 <input id="cname" oninput="updateView()">
-Address:
+Address
 <input id="caddr" oninput="updateView()" style="width:300px"><br><br>
 
 <select id="item"></select>
 Qty <input id="qty" value="1" style="width:60px">
 Rate <input id="price" style="width:80px">
-<button class="btn" onclick="addItem()">Add</button>
+<button class="btn" onclick="addItem()">Add Item</button>
 </div>
 
 <table id="bill">
@@ -89,9 +97,12 @@ Balance ₹ <span id="due">0</span>
 
 <div class="no-print" style="text-align:center">
 <button class="btn" onclick="saveBill()">Generate Bill</button>
+<button class="btn" onclick="sendWA()">WhatsApp</button>
+<button class="btn" onclick="window.print()">Print</button>
 </div>
 
 <div class="footer">Thank you – Visit Again 🙏</div>
+
 </div>
 
 <script>
@@ -100,13 +111,15 @@ billdate.innerText=new Date().toLocaleDateString();
 
 let items=[], total=0, sno=1;
 
-/* PRODUCTS */
+/* LOAD PRODUCTS */
 fetch(API+"?action=products")
 .then(r=>r.json())
 .then(d=>{
  d.forEach(p=>{
   let o=document.createElement("option");
-  o.value=p[0]; o.text=p[1]; o.dataset.price=p[3];
+  o.value=p[0];
+  o.text=p[1];
+  o.dataset.price=p[3];
   item.appendChild(o);
  });
  price.value=item.options[0].dataset.price;
@@ -114,26 +127,26 @@ fetch(API+"?action=products")
 item.onchange=()=>price.value=item.options[item.selectedIndex].dataset.price;
 
 /* MESSAGE */
-function showMsg(text,type){
- msg.innerText=text;
- msg.className="msg "+type;
+function showMsg(t,c){
+ msg.innerText=t;
+ msg.className="msg "+c;
  msg.style.display="block";
  setTimeout(()=>msg.style.display="none",3000);
 }
 
 /* FETCH CUSTOMER */
 function fetchCustomer(){
- fetch(API+"?action=getCustomer&mobile="+mobile.value)
+ fetch(API+"?action=getCustomer&mobile="+encodeURIComponent(mobile.value))
  .then(r=>r.json())
  .then(d=>{
   if(d.found){
     cname.value=d.name;
     caddr.value=d.address;
-    showMsg("Customer data loaded ✔","success");
+    showMsg("Customer loaded","success");
   }else{
     cname.value="";
     caddr.value="";
-    showMsg("New customer – enter details","error");
+    showMsg("New customer – enter details","warn");
   }
   updateView();
  });
@@ -169,7 +182,7 @@ function updateTotals(){
  due.innerText=total-(+paid.value||0);
 }
 
-/* SAVE */
+/* SAVE BILL */
 function saveBill(){
  fetch(API+"?action=sell"+
  "&items="+encodeURIComponent(JSON.stringify(items))+
@@ -181,6 +194,29 @@ function saveBill(){
   billno.innerText=b;
   showMsg("Bill generated: "+b,"success");
  });
+}
+
+/* WHATSAPP */
+function sendWA(){
+ let msg=
+`SVLN SOLUTIONS
+Invoice: ${billno.innerText}
+Customer: ${cname.value}
+Mobile: ${mobile.value}
+
+Items:
+`;
+ items.forEach(i=>{
+  msg+=`${i.qty} x ${i.code} = ₹${i.qty*i.price}\n`;
+ });
+ msg+=`
+Total ₹${total}
+Paid ₹${paid.value}
+Balance ₹${due.innerText}
+
+📞 9533330347, 9494488885`;
+
+ window.open("https://wa.me/91"+mobile.value+"?text="+encodeURIComponent(msg));
 }
 </script>
 
