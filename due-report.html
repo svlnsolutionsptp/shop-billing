@@ -1,0 +1,18 @@
+<h3>Customer Due Report</h3>
+<table border="1" id="t"></table>
+
+<script>
+const API="https://script.google.com/macros/s/AKfycbzYV6MhuNK-yJRCg80ILwqOAVNz1WktoBjQPldYQDC6sR9HqaZNxcaI8i_WwZ24DPCB-g/exec";
+fetch(API+"?action=dueReport")
+.then(r=>r.json())
+.then(d=>{
+ t.innerHTML="<tr><th>Name</th><th>Mobile</th><th>Due</th></tr>";
+ d.forEach(r=>{
+   t.innerHTML+=`<tr>
+   <td>${r.name}</td>
+   <td>${r.mobile}</td>
+   <td>${r.due}</td>
+   </tr>`;
+ });
+});
+</script>
