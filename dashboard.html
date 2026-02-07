@@ -1,76 +1,34 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SVLN SOLUTIONS – Dashboard</title>
-
+<title>SVLN SOLUTIONS Dashboard</title>
 <style>
-body{
-  font-family:Arial;
-  background:#eef2ff;
-  margin:0;
-}
-h2{
-  text-align:center;
-  color:#1f4fd8;
-  margin-top:20px;
-}
-.section-title{
-  text-align:center;
-  margin-top:30px;
-  font-size:18px;
-  color:#333;
-}
-.grid{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-}
-.card{
-  background:#fff;
-  width:220px;
-  margin:15px;
-  padding:25px;
-  border-radius:14px;
-  text-align:center;
-  box-shadow:0 6px 18px rgba(0,0,0,.15);
-  cursor:pointer;
-  transition:.2s;
-  font-size:16px;
-}
-.card:hover{
-  transform:scale(1.05);
-}
-.work{border-top:6px solid #1f4fd8;}
-.report{border-top:6px solid #28a745;}
+body{font-family:Arial;background:#f4f4f4}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px}
+.card{background:#222;color:#fff;padding:20px;text-align:center;
+border-radius:8px;cursor:pointer;font-size:18px}
+.card:hover{background:#c60000}
 </style>
-
 </head>
 <body>
 
-<h2>SVLN SOLUTIONS – DASHBOARD</h2>
+<h2>SVLN SOLUTIONS – Dashboard</h2>
 
-<!-- WORK SECTION -->
-<div class="section-title">🧾 DAILY OPERATIONS</div>
 <div class="grid">
-  <div class="card work" onclick="go('billing.html')">🧾 Billing</div>
-  <div class="card work" onclick="go('purchase.html')">📦 Purchase</div>
-  <div class="card work" onclick="go('expenses.html')">💸 Expenses</div>
+  <div class="card" onclick="go('billing.html')">🧾 Billing</div>
+  <div class="card" onclick="go('purchase.html')">📦 Purchase</div>
+  <div class="card" onclick="go('expenses.html')">💸 Expenses</div>
+  <div class="card" onclick="go('old-bill.html')">🔍 Old Bill Payment</div>
 </div>
 
-<!-- REPORT SECTION -->
-<div class="section-title">📊 REPORTS (READ ONLY)</div>
+<h3>Reports</h3>
 <div class="grid">
-  <div class="card report" onclick="go('stock.html')">📦 Stock Report</div>
-  <div class="card report" onclick="go('sales.html')">🧾 Sales Report</div>
-  <div class="card report" onclick="go('purchaseReport.html')">📥 Purchase Report</div>
-  <div class="card report" onclick="go('expenseReport.html')">💸 Expense Report</div>
-  <div class="card report" onclick="go('profit.html')">📊 Profit Report</div>
+  <div class="card" onclick="go('due-report.html')">🧾 Due Report</div>
+  <div class="card" onclick="go('cashbook.html')">💰 Cash Book</div>
 </div>
 
 <script>
-function go(page){
-  location.href = page;
-}
+function go(p){location.href=p;}
 </script>
 
 </body>
