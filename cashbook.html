@@ -1,0 +1,16 @@
+<h3>Today Cash Book</h3>
+<div id="c"></div>
+
+<script>
+const API="https://script.google.com/macros/s/AKfycbzYV6MhuNK-yJRCg80ILwqOAVNz1WktoBjQPldYQDC6sR9HqaZNxcaI8i_WwZ24DPCB-g/exec";
+fetch(API+"?action=cashBook")
+.then(r=>r.json())
+.then(d=>{
+ c.innerHTML=`
+ Opening: ₹${d.opening}<br>
+ Cash In: ₹${d.cashIn}<br>
+ Cash Out: ₹${d.cashOut}<br>
+ <b>Closing: ₹${d.closing}</b>
+ `;
+});
+</script>
