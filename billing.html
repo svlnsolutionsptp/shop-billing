@@ -2,221 +2,84 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>SVLN SOLUTIONS - Invoice</title>
-
+<title>Billing Test</title>
 <style>
-body{font-family:Arial;background:#eee}
-.invoice{
-  width:820px;margin:20px auto;background:#fff;
-  box-shadow:0 0 25px rgba(0,0,0,.35)
-}
-@media print{
-  *{-webkit-print-color-adjust:exact}
-  body{background:#fff}
-  .no-print{display:none}
-}
-.header{
-  background:linear-gradient(135deg,#111 65%,#c60000 65%);
-  color:#fff;padding:20px
-}
-.info{
-  display:flex;justify-content:space-between;
-  padding:15px;font-size:14px
-}
-table{width:100%;border-collapse:collapse}
-th{background:#c60000;color:#fff;padding:8px}
-td{border:1px solid #aaa;padding:6px;text-align:center}
-.total{text-align:right;padding:15px}
-.footer{background:#c60000;color:#fff;text-align:center;padding:10px}
-.btn{
-  background:#111;color:#fff;border:none;
-  padding:8px 16px;border-radius:6px;
-  cursor:pointer;transition:.3s
-}
-.btn:hover{transform:scale(1.05)}
-.msg{
-  margin:10px;padding:8px;border-radius:6px;display:none
-}
-.success{background:#d4edda;color:#155724}
-.warn{background:#f8d7da;color:#721c24}
+body{font-family:Arial;background:#f2f2f2}
+.box{width:400px;margin:50px auto;background:#fff;padding:20px;border-radius:8px}
+label{display:block;margin-top:10px}
+input{width:100%;padding:6px}
+.msg{margin-top:10px;font-size:14px}
+.ok{color:green}
+.no{color:red}
 </style>
 </head>
 
 <body>
 
-<div class="invoice">
+<div class="box">
+<h3>Billing – Customer Fetch Test</h3>
 
-<div class="header">
-<h2>SVLN SOLUTIONS</h2>
-Laptop & Mobile Sales | Accessories | Service<br>
-📞 9533330347, 9494488885
-</div>
+<label>Mobile Number</label>
+<input id="mobile">
 
-<div class="info">
-<div>
-<b>Bill To:</b><br>
-Name: <span id="cnameText">—</span><br>
-Mobile: <span id="cmobileText">—</span><br>
-Address: <span id="caddrText">—</span>
-</div>
-<div>
-<b>Invoice:</b><br>
-<span id="billno">—</span><br>
-<span id="billdate"></span>
-</div>
-</div>
+<label>Customer Name</label>
+<input id="cname">
+
+<label>Address</label>
+<input id="caddr">
+
+<button onclick="fetchCustomer()">Fetch Customer</button>
 
 <div id="msg" class="msg"></div>
 
-<div class="no-print" style="padding:15px">
-Mobile
-<input id="mobile" onblur="fetchCustomer()">
-Name
-<input id="cname" oninput="updateView()">
-Address
-<input id="caddr" oninput="updateView()" style="width:300px"><br><br>
+<hr>
 
-<select id="item"></select>
-Qty <input id="qty" value="1" style="width:60px">
-Rate <input id="price" style="width:80px">
-<button class="btn" onclick="addItem()">Add Item</button>
-</div>
-
-<table id="bill">
-<thead>
-<tr><th>#</th><th>Item</th><th>Qty</th><th>Rate</th><th>Total</th></tr>
-</thead>
-<tbody></tbody>
-</table>
-
-<div class="total">
-<b>Total ₹ <span id="grand">0</span></b><br>
-Paid <input id="paid" value="0" style="width:80px"><br>
-Balance ₹ <span id="due">0</span>
-</div>
-
-<div class="no-print" style="text-align:center">
-<button class="btn" onclick="saveBill()">Generate Bill</button>
-<button class="btn" onclick="sendWA()">WhatsApp</button>
-<button class="btn" onclick="window.print()">Print</button>
-</div>
-
-<div class="footer">Thank you – Visit Again 🙏</div>
-
+<button onclick="window.print()">Print</button>
+<button onclick="sendWA()">WhatsApp</button>
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbzgjTvvG9kJxl294NT-rQONzNwZL-aHcO8Ygicg3ylZdnmI6bZ8qs-LzYF4gkAb7MiRDg/exec";
-billdate.innerText=new Date().toLocaleDateString();
+const API = "https://script.google.com/macros/s/AKfycbzgjTvvG9kJxl294NT-rQONzNwZL-aHcO8Ygicg3ylZdnmI6bZ8qs-LzYF4gkAb7MiRDg/exec";
 
-let items=[], total=0, sno=1;
-
-/* LOAD PRODUCTS */
-fetch(API+"?action=products")
-.then(r=>r.json())
-.then(d=>{
- d.forEach(p=>{
-  let o=document.createElement("option");
-  o.value=p[0];
-  o.text=p[1];
-  o.dataset.price=p[3];
-  item.appendChild(o);
- });
- price.value=item.options[0].dataset.price;
-});
-item.onchange=()=>price.value=item.options[item.selectedIndex].dataset.price;
-
-/* MESSAGE */
-function showMsg(t,c){
- msg.innerText=t;
- msg.className="msg "+c;
- msg.style.display="block";
- setTimeout(()=>msg.style.display="none",3000);
-}
-
-/* FETCH CUSTOMER */
 function fetchCustomer(){
- fetch(API+"?action=getCustomer&mobile="+encodeURIComponent(mobile.value))
- .then(r=>r.json())
- .then(d=>{
-  if(d.found){
-    cname.value=d.name;
-    caddr.value=d.address;
-    showMsg("Customer loaded","success");
-  }else{
-    cname.value="";
-    caddr.value="";
-    showMsg("New customer – enter details","warn");
+  const m = mobile.value.trim();
+  if(m.length !== 10){
+    msg.innerHTML = "Enter 10-digit mobile";
+    msg.className = "msg no";
+    return;
   }
-  updateView();
- });
+
+  fetch(API + "?action=getCustomer&mobile=" + m)
+    .then(r => r.json())
+    .then(d => {
+      console.log("API RESPONSE:", d); // 🔴 IMPORTANT
+
+      if(d.found){
+        cname.value = d.name;
+        caddr.value = d.address;
+        msg.innerHTML = "Customer fetched successfully";
+        msg.className = "msg ok";
+      } else {
+        cname.value = "";
+        caddr.value = "";
+        msg.innerHTML = "Customer not found (new customer)";
+        msg.className = "msg no";
+      }
+    })
+    .catch(err=>{
+      msg.innerHTML = "Fetch error";
+      msg.className = "msg no";
+      console.error(err);
+    });
 }
 
-/* UPDATE VIEW */
-function updateView(){
- cnameText.innerText=cname.value||"—";
- cmobileText.innerText=mobile.value||"—";
- caddrText.innerText=caddr.value||"—";
-}
-
-/* ADD ITEM */
-function addItem(){
- let q=+qty.value,p=+price.value,t=q*p;
- total+=t;
- items.push({code:item.value,qty:q,price:p});
-
- let r=bill.tBodies[0].insertRow();
- r.insertCell(0).innerText=sno++;
- r.insertCell(1).innerText=item.options[item.selectedIndex].text;
- r.insertCell(2).innerText=q;
- r.insertCell(3).innerText=p;
- r.insertCell(4).innerText=t;
-
- updateTotals();
-}
-
-/* TOTAL */
-paid.oninput=updateTotals;
-function updateTotals(){
- grand.innerText=total;
- due.innerText=total-(+paid.value||0);
-}
-
-/* SAVE BILL */
-function saveBill(){
- fetch(API+"?action=sell"+
- "&items="+encodeURIComponent(JSON.stringify(items))+
- "&cname="+encodeURIComponent(cname.value)+
- "&mobile="+encodeURIComponent(mobile.value)+
- "&paid="+paid.value)
- .then(r=>r.text())
- .then(b=>{
-  billno.innerText=b;
-  showMsg("Bill generated: "+b,"success");
- });
-}
-
-/* WHATSAPP */
 function sendWA(){
- let msg=
+  const text =
 `SVLN SOLUTIONS
-Invoice: ${billno.innerText}
 Customer: ${cname.value}
 Mobile: ${mobile.value}
-
-Items:
-`;
- items.forEach(i=>{
-  msg+=`${i.qty} x ${i.code} = ₹${i.qty*i.price}\n`;
- });
- msg+=`
-Total ₹${total}
-Paid ₹${paid.value}
-Balance ₹${due.innerText}
-
-📞 9533330347, 9494488885`;
-
- window.open("https://wa.me/91"+mobile.value+"?text="+encodeURIComponent(msg));
+Address: ${caddr.value}`;
+  window.open("https://wa.me/91"+mobile.value+"?text="+encodeURIComponent(text));
 }
 </script>
 
